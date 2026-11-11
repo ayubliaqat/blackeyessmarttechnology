@@ -1,26 +1,566 @@
 @import "tailwindcss";
 
+/* Theme switch: dark is the default. Add the "light" class on <html> for light mode. */
+@custom-variant light (&:where(.light, .light *));
+
+/* ==========================================================================
+   1. DESIGN TOKENS
+   ========================================================================== */
+@theme {
+  /* Official brand palette (names unchanged, so existing classes keep working) */
+  --color-midnight: #000810;
+  --color-deepblack: #000818;
+  --color-electric: #1ce8f0;
+  --color-deepcyan: #07505a;
+  --color-softwhite: #f0f0f0;
+  --color-silver: #aab6c0;
+
+  /* Semantic colors (switch with theme) */
+  --color-bg: var(--bg);
+  --color-bg-alt: var(--bg-alt);
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-edge: var(--edge);
+
+  /* Fonts (unchanged) */
+  --font-display: "Poppins", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+
+  /* Strict spacing scale (px): 4 8 12 16 24 32 48 64 96 */
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-6: 24px;
+  --spacing-8: 32px;
+  --spacing-12: 48px;
+  --spacing-16: 64px;
+  --spacing-24: 96px;
+
+  /* Radius (on the spacing scale) */
+  --radius-card: 24px;
+  --radius-card-sm: 16px;
+  --radius-pill: 999px;
+
+  /* Motion */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --duration-fast: 160ms;
+  --duration-base: 320ms;
+  --duration-slow: 600ms;
+}
+
+/* ==========================================================================
+   2. THEMES (dark = default)
+   ========================================================================== */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Type scale: mobile */
+  --fs-h1: 1.875rem; /* 30 */
+  --fs-h2: 1.5rem; /* 24 */
+  --fs-h3: 1.25rem; /* 20 */
+  --fs-h4: 1.125rem; /* 18 */
+  --fs-hero: 1.875rem; /* hero h1 only, grows at lg */
+  --fs-body: 1rem; /* 16 */
+  --fs-lead: 1.0625rem; /* 17 */
+  --fs-small: 0.875rem; /* 14 */
+  --fs-ui: 0.9375rem; /* 15 buttons / nav */
+  --lh-body: 1.75; /* dark mode reads tighter, so +0.05 */
+
+  /* Rhythm: mobile */
+  --section-pad-y: 48px;
+  --section-pad-x: 16px;
+  --container-max: 1200px;
+  --head-gap: 32px;
+  --h2-mt: 40px;
+  --h3-mt: 32px;
+  --p-mb: 16px;
+  --tap: 44px;
+  --glass-blur: 12px;
+
+  /* Colors */
+  --bg: #000810;
+  --bg-alt: #000818;
+  --fg: #f0f0f0;
+  --fg-muted: #aab6c0;
+  --accent: #1ce8f0;
+  --accent-soft: rgba(28, 232, 240, 0.14);
+  --edge: rgba(28, 232, 240, 0.1);
+
+  /* Glass: no drop shadows in dark mode, border and surface do the work */
+  --glass-bg: rgba(255, 255, 255, 0.045);
+  --glass-bg-hover: rgba(255, 255, 255, 0.08);
+  --glass-border: rgba(28, 232, 240, 0.1);
+  --glass-highlight: rgba(255, 255, 255, 0.1);
+  --glass-shadow: 0 0 0 0 transparent;
+  --btn-shadow: 0 0 0 0 transparent;
+
+  --btn-primary-fg: #000810;
+  --btn-primary-top: #5df2f7;
+  --btn-primary-bottom: #1ce8f0;
+  --btn-primary-glow: rgba(28, 232, 240, 0.35);
+  --btn-primary-glow-hover: rgba(28, 232, 240, 0.5);
+
+  --stroke-text: rgba(28, 232, 240, 0.28);
+
+  color-scheme: dark;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+.light {
+  --lh-body: 1.7;
+
+  --bg: #f4f8fa;
+  --bg-alt: #e9f0f4;
+  --fg: #000810;
+  --fg-muted: #46586a;
+  --accent: #07505a;
+  --accent-soft: rgba(7, 80, 90, 0.12);
+  --edge: rgba(0, 8, 24, 0.1);
+
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-bg-hover: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(0, 8, 24, 0.1);
+  --glass-highlight: rgba(255, 255, 255, 0.9);
+  --glass-shadow: 0 12px 32px -16px rgba(0, 8, 24, 0.18);
+  --btn-shadow: 0 8px 24px -12px rgba(0, 8, 24, 0.25);
+
+  --btn-primary-fg: #f0f0f0;
+  --btn-primary-top: #0a6d7b;
+  --btn-primary-bottom: #07505a;
+  --btn-primary-glow: rgba(7, 80, 90, 0.4);
+  --btn-primary-glow-hover: rgba(7, 80, 90, 0.55);
+
+  --stroke-text: rgba(7, 80, 90, 0.4);
+
+  color-scheme: light;
 }
 
-@media (prefers-color-scheme: dark) {
+/* Responsive rhythm: sm (default) -> md -> lg -> xl */
+@media (min-width: 768px) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --fs-h1: 2.25rem; /* 36 */
+    --fs-h2: 1.75rem; /* 28 */
+    --fs-h3: 1.375rem; /* 22 */
+    --fs-hero: 2.25rem;
+    --fs-lead: 1.125rem; /* 18 */
+
+    --section-pad-y: 64px;
+    --section-pad-x: 24px;
+    --head-gap: 48px;
+    --h2-mt: 48px;
+    --glass-blur: 20px;
+  }
+}
+@media (min-width: 1024px) {
+  :root {
+    --fs-h1: 2.5rem; /* 40 */
+    --fs-h2: 2rem; /* 32 */
+    --fs-h3: 1.5rem; /* 24 */
+    --fs-h4: 1.25rem; /* 20 */
+    --fs-hero: 3.5rem; /* 56, hero only */
+    --fs-body: 1.0625rem; /* 17 */
+
+    --section-pad-y: 96px;
+    --section-pad-x: 32px;
+    --head-gap: 64px;
+    --h2-mt: 56px;
+    --h3-mt: 40px;
+    --p-mb: 20px;
+    --tap: 40px;
   }
 }
 
+/* ==========================================================================
+   3. BASE
+   ========================================================================== */
+html {
+  background: var(--bg);
+  -webkit-text-size-adjust: 100%;
+  height: auto;
+  overflow-y: auto;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  font-size: var(--fs-body);
+  font-weight: 400;
+  line-height: var(--lh-body);
+  /* clip (not hidden) so the body never becomes a scroll container and GSAP pin keeps working */
+  overflow-x: clip;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition:
+    background-color var(--duration-base) var(--ease-in-out),
+    color var(--duration-base) var(--ease-in-out);
+}
+
+img,
+svg,
+video,
+canvas {
+  display: block;
+  max-width: 100%;
+}
+
+::selection {
+  background: #1ce8f0;
+  color: #000810;
+}
+
+/* Ring only: never touch the element's own border-radius */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* ==========================================================================
+   4. TYPOGRAPHY (one scale for every section, weights capped at 600)
+   ========================================================================== */
+h1,
+h2,
+h3,
+h4 {
+  margin: 0;
+  font-family: var(--font-display);
+  color: var(--fg);
+  font-weight: 600;
+  text-wrap: balance;
+}
+
+h1,
+.t-h1 {
+  font-size: var(--fs-h1);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+h2,
+.t-h2 {
+  font-size: var(--fs-h2);
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+}
+h3,
+.t-h3 {
+  font-size: var(--fs-h3);
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+h4,
+.t-h4 {
+  font-size: var(--fs-h4);
+  line-height: 1.4;
+  letter-spacing: 0;
+}
+
+/* Hero h1 only: 56px from lg up, standard h1 size below */
+.t-hero {
+  font-size: var(--fs-hero);
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+}
+
+p {
+  margin: 0;
+  text-wrap: pretty;
+}
+
+.t-lead {
+  font-size: var(--fs-lead);
+  line-height: 1.6;
+  color: var(--fg-muted);
+  max-width: 60ch;
+}
+.t-body {
+  color: var(--fg-muted);
+  max-width: 70ch;
+}
+.t-caption {
+  font-size: var(--fs-small);
+  line-height: 1.5;
+  color: var(--fg-muted);
+}
+
+/* Long-form content (blog posts, guides): standard editorial rhythm */
+.prose-article {
+  max-width: 720px;
+  margin-inline: auto;
+}
+.prose-article > :first-child {
+  margin-top: 0;
+}
+.prose-article h1 {
+  margin-bottom: 16px;
+}
+.prose-article h2 {
+  margin-top: var(--h2-mt);
+  margin-bottom: 16px;
+}
+.prose-article h3 {
+  margin-top: var(--h3-mt);
+  margin-bottom: 12px;
+}
+.prose-article h4 {
+  margin-top: 24px;
+  margin-bottom: 8px;
+}
+.prose-article p {
+  margin-bottom: var(--p-mb);
+  max-width: 70ch;
+}
+.prose-article ul,
+.prose-article ol {
+  margin: 0 0 var(--p-mb);
+  padding-left: 24px;
+}
+.prose-article li + li {
+  margin-top: 8px;
+}
+
+/* ==========================================================================
+   5. LAYOUT PRIMITIVES
+   ========================================================================== */
+.section {
+  position: relative;
+  width: 100%;
+  padding-block: var(--section-pad-y);
+  padding-inline: var(--section-pad-x);
+}
+.section--alt {
+  background: var(--bg-alt);
+}
+
+.container-x {
+  width: 100%;
+  max-width: var(--container-max);
+  margin-inline: auto;
+}
+
+.section-head {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: var(--head-gap);
+}
+.section-head--center {
+  align-items: center;
+  text-align: center;
+  margin-inline: auto;
+}
+
+/* ==========================================================================
+   6. GLASSMORPHISM (cards + raised buttons)
+   ========================================================================== */
+.glass {
+  position: relative;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-card);
+  box-shadow:
+    inset 0 1px 0 var(--glass-highlight),
+    var(--glass-shadow);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  transition:
+    background-color var(--duration-base) var(--ease-out-expo),
+    border-color var(--duration-base) var(--ease-out-expo),
+    transform var(--duration-base) var(--ease-out-expo),
+    box-shadow var(--duration-base) var(--ease-out-expo);
+}
+
+.glass-card {
+  padding: 24px;
+}
+@media (min-width: 1024px) {
+  .glass-card {
+    padding: 32px;
+  }
+}
+
+@media (hover: hover) {
+  .glass--interactive:hover {
+    background: var(--glass-bg-hover);
+    border-color: var(--accent);
+    transform: translateY(-4px);
+  }
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: var(--tap);
+  padding: 12px 24px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-sans);
+  font-size: var(--fs-ui);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  cursor: pointer;
+  text-decoration: none;
+  touch-action: manipulation;
+  color: var(--fg);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  box-shadow:
+    inset 0 1px 0 var(--glass-highlight),
+    var(--btn-shadow);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  transition:
+    transform var(--duration-fast) var(--ease-out-expo),
+    box-shadow var(--duration-base) var(--ease-out-expo),
+    background-color var(--duration-base) var(--ease-out-expo),
+    border-color var(--duration-base) var(--ease-out-expo);
+}
+@media (max-width: 767px) {
+  .btn {
+    padding-inline: 20px;
+  }
+}
+@media (hover: hover) {
+  .btn:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent);
+    background: var(--glass-bg-hover);
+  }
+}
+.btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.btn--primary {
+  color: var(--btn-primary-fg);
+  background: linear-gradient(
+    180deg,
+    var(--btn-primary-top) 0%,
+    var(--btn-primary-bottom) 100%
+  );
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    0 8px 24px -8px var(--btn-primary-glow);
+}
+@media (hover: hover) {
+  .btn--primary:hover {
+    background: linear-gradient(
+      180deg,
+      var(--btn-primary-top) 0%,
+      var(--btn-primary-bottom) 100%
+    );
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.45),
+      0 12px 32px -8px var(--btn-primary-glow-hover);
+  }
+}
+
+/* Header bar floats over the always-dark hero, so in light mode it needs a
+   more solid surface than cards on the light page (avoids a muddy grey) */
+.light .glass-bar {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+/* ==========================================================================
+   7. MOTION UTILITIES + EXISTING HERO KEYFRAMES
+   (scan and shimmer animate top/left, which triggers layout. Migrate them to
+   transform: translateY/translateX in the components when convenient.)
+   ========================================================================== */
+@keyframes scan {
+  0%,
+  100% {
+    top: 14%;
+  }
+  50% {
+    top: 86%;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    left: -50%;
+  }
+  60%,
+  100% {
+    left: 130%;
+  }
+}
+
+.stroke-text {
+  color: transparent;
+  -webkit-text-stroke: 1px var(--stroke-text);
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity var(--duration-slow) var(--ease-out-expo),
+    transform var(--duration-slow) var(--ease-out-expo);
+  transition-delay: calc(var(--reveal-index, 0) * 80ms);
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+/* Never leave content invisible when JavaScript is unavailable */
+@media (scripting: none) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Logo theme swap: explicit rules so exactly one logo shows per theme */
+.logo-dark {
+  display: block;
+}
+.logo-light {
+  display: none;
+}
+.light .logo-dark {
+  display: none;
+}
+.light .logo-light {
+  display: block;
+}
+
+/* ==========================================================================
+   8. LENIS
+   ========================================================================== */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+/* ==========================================================================
+   9. ACCESSIBILITY
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
 }
