@@ -16,7 +16,8 @@ export default function SmoothScroll({
   useEffect(() => {
     const lenis = new Lenis({ lerp: 0.09, anchors: true });
     heroState.lenis = lenis;
-    if (heroState.locked) lenis.stop();
+    // TEMP TEST: lock check removed to confirm it is the cause
+    // if (heroState.locked) lenis.stop();
 
     lenis.on("scroll", ScrollTrigger.update);
     const tick = (time: number) => lenis.raf(time * 1000);
