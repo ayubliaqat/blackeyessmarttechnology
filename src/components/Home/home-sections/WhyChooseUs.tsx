@@ -8,26 +8,43 @@ import { ShieldCheck, Cpu, Headphones, Wrench } from "lucide-react";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
+// Every card has exactly three points so all four cards stay equal
 const FEATURES = [
   {
     icon: ShieldCheck,
     title: "Enterprise-Grade Security",
-    text: "Engineered from the ground up to protect your property, data, and privacy with uncompromised reliability.",
+    points: [
+      "Protects your property, data and privacy",
+      "Built for uncompromising reliability",
+      "Security designed in from the start",
+    ],
   },
   {
     icon: Cpu,
     title: "Smart Integration",
-    text: "CCTV, access control, and automation working seamlessly together through a single unified interface.",
+    points: [
+      "CCTV, access control and automation together",
+      "One unified interface to manage it all",
+      "Systems that work seamlessly as one",
+    ],
   },
   {
     icon: Wrench,
     title: "End-to-End Execution",
-    text: "From professional site surveys and structured cabling to expert installation and configuration.",
+    points: [
+      "Professional site surveys",
+      "Structured cabling done properly",
+      "Expert installation and configuration",
+    ],
   },
   {
     icon: Headphones,
     title: "24/7 Dedicated Support",
-    text: "Our local technical team is always on call, ensuring your systems operate smoothly around the clock.",
+    points: [
+      "Local technical team always on call",
+      "Help available around the clock",
+      "Systems that keep running smoothly",
+    ],
   },
 ];
 
@@ -99,30 +116,56 @@ export default function WhyChooseUs() {
         }
 
         /* ----------------------------------------------------------
+           Heading color (dark = electric, light = deep cyan)
+           Used by the h2 and the card headings
+        ---------------------------------------------------------- */
+
+        .why-sec {
+          --why-h2: #1ce8f0;
+        }
+
+        .light .why-sec {
+          --why-h2: #07505a;
+        }
+
+        /* ----------------------------------------------------------
            Compact top spacing (beats the global .section padding)
         ---------------------------------------------------------- */
 
         .section.why-sec {
-          padding-top: 1.5rem;
+          padding-top: 0.75rem;
           padding-bottom: 2.5rem;
         }
 
         @media (min-width: 640px) {
           .section.why-sec {
-            padding-top: 2rem;
+            padding-top: 1rem;
             padding-bottom: 3rem;
           }
         }
 
         @media (min-width: 1024px) {
           .section.why-sec {
-            padding-top: 2.5rem;
+            padding-top: 1.5rem;
             padding-bottom: 3.5rem;
           }
         }
 
         .why-sec .why-head {
           margin-top: 0;
+          margin-bottom: 24px;
+        }
+
+        @media (min-width: 768px) {
+          .why-sec .why-head {
+            margin-bottom: 32px;
+          }
+        }
+
+        @media (min-width: 1024px) {
+          .why-sec .why-head {
+            margin-bottom: 40px;
+          }
         }
 
         .why-sec .why-head h2 {
@@ -180,6 +223,27 @@ export default function WhyChooseUs() {
             box-shadow 350ms ease;
         }
 
+        /* Thin accent rule under each heading */
+        .why-rule {
+          display: block;
+          width: 40px;
+          height: 1px;
+          background: linear-gradient(90deg, transparent, var(--accent), transparent);
+          opacity: 0.8;
+          transition: width 400ms cubic-bezier(.16, 1, .3, 1);
+        }
+
+        /* Bullet marker: small accent dot with a soft glow */
+        .why-dot {
+          flex-shrink: 0;
+          margin-top: 0.62em;
+          width: 5px;
+          height: 5px;
+          border-radius: 9999px;
+          background: var(--accent);
+          box-shadow: 0 0 8px color-mix(in srgb, var(--accent) 55%, transparent);
+        }
+
         @media (hover: hover) {
           .why-card-wrapper:hover {
             transform: translateY(-4px);
@@ -188,6 +252,10 @@ export default function WhyChooseUs() {
 
           .why-card-wrapper:hover .why-card-inner {
             background: var(--bg-alt);
+          }
+
+          .why-card-wrapper:hover .why-rule {
+            width: 64px;
           }
 
           .why-card-wrapper:hover .why-icon {
@@ -225,7 +293,7 @@ export default function WhyChooseUs() {
           <h2
             aria-label={HEADING}
             className="t-h2 font-semibold"
-            style={{ color: "#1ce8f0" }}
+            style={{ color: "var(--why-h2)" }}
           >
             {HEADING.split(" ").map((word, index) => (
               <span
@@ -246,20 +314,37 @@ export default function WhyChooseUs() {
 
         {/* Features grid */}
         <div className="why-grid grid gap-8 sm:grid-cols-2 lg:grid-cols-4 lg:gap-12">
-          {FEATURES.map(({ icon: Icon, title, text }) => (
+          {FEATURES.map(({ icon: Icon, title, points }) => (
             <div key={title} className="why-card-wrapper">
-              <div className="why-card-inner flex h-full flex-col items-start p-6 sm:p-7">
-                <div className="why-icon mb-5 flex size-10 items-center justify-center rounded-full border sm:size-11">
+              <div className="why-card-inner flex h-full flex-col items-center p-6 sm:p-7">
+                {/* Icon centred */}
+                <div className="why-icon mb-4 flex size-10 items-center justify-center rounded-full border sm:size-11">
                   <Icon className="size-[18px]" aria-hidden="true" />
                 </div>
 
-                <h3 className="mb-2 font-display text-[15px] font-medium leading-snug text-fg sm:text-base">
+                {/* Heading: refined size, two lines reserved on desktop so cards stay aligned */}
+                <h3
+                  className="mb-3 flex items-center justify-center text-center font-display text-[1.0625rem] font-semibold leading-snug tracking-tight sm:text-[1.125rem] lg:min-h-[3rem]"
+                  style={{ color: "var(--why-h2)" }}
+                >
                   {title}
                 </h3>
 
-                <p className="text-[13px] leading-[1.8] text-fg-muted sm:text-sm">
-                  {text}
-                </p>
+                {/* Fine divider between heading and points */}
+                <span className="why-rule mb-4" aria-hidden="true" />
+
+                {/* Three equal bullet points */}
+                <ul className="w-full space-y-2.5 text-left">
+                  {points.map((point) => (
+                    <li
+                      key={point}
+                      className="flex items-start gap-2.5 text-[13px] leading-[1.6] text-fg-muted"
+                    >
+                      <span className="why-dot" aria-hidden="true" />
+                      <span>{point}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
             </div>
           ))}

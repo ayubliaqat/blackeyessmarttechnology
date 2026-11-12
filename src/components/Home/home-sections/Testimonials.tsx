@@ -196,6 +196,18 @@ export default function Testimonials() {
     >
       <style>{`
         /* ----------------------------------------------------------
+           Heading color (dark = electric, light = deep cyan)
+        ---------------------------------------------------------- */
+
+        .tst-sec {
+          --tst-h2: #1ce8f0;
+        }
+
+        html.light .tst-sec {
+          --tst-h2: #07505a;
+        }
+
+        /* ----------------------------------------------------------
            Compact spacing (matches the other sections)
         ---------------------------------------------------------- */
 
@@ -327,7 +339,7 @@ export default function Testimonials() {
           <h2
             aria-label={HEADING}
             className="t-h2 font-semibold"
-            style={{ color: "#1ce8f0" }}
+            style={{ color: "var(--tst-h2)" }}
           >
             {HEADING.split(" ").map((word, index) => (
               <span
@@ -378,10 +390,13 @@ export default function Testimonials() {
 
                 {/* Name, small, below the quote */}
                 <div className="mt-auto pt-7">
-                  <h3 className="font-display text-xs font-medium leading-tight text-fg">
+                  <h3
+                    className="font-display text-[11px] font-medium leading-tight"
+                    style={{ color: "var(--tst-h2)" }}
+                  >
                     {item.name}
                   </h3>
-                  <p className="mt-1 text-[11px] leading-tight text-fg-muted">
+                  <p className="mt-1 text-[10px] leading-tight text-fg-muted">
                     {item.role}
                   </p>
                 </div>

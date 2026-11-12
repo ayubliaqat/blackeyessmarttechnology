@@ -1,26 +1,16 @@
-
 "use client";
 
-import { useRef, useState, type ComponentType, type MouseEvent } from "react";
+import { useRef, type ComponentType } from "react";
 import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
-import {
-  ArrowRight,
-  ArrowUpRight,
-  Flame,
-  Home,
-  Network,
-  Phone,
-  Video,
-  Volume2,
-} from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 /* ==========================================================================
-   Animated service illustrations
+   Animated service illustrations (unchanged)
    ========================================================================== */
 
 const svgProps = {
@@ -266,14 +256,13 @@ function SoundArt() {
 
 /* ==========================================================================
    Service content
+   Every card has the illustration, a heading and exactly three points.
    ========================================================================== */
 
 type Service = {
   id: string;
   title: string;
-  text: string;
-  tags: string[];
-  Icon: ComponentType<{ className?: string }>;
+  points: string[];
   Art: ComponentType;
 };
 
@@ -281,49 +270,37 @@ const SERVICES: Service[] = [
   {
     id: "cctv",
     title: "CCTV & Access Control",
-    text: "High-definition surveillance and controlled entry, planned around your property and viewable from anywhere.",
-    tags: ["IP cameras", "Remote viewing", "Access control"],
-    Icon: Video,
+    points: ["IP cameras", "Remote viewing", "Access control"],
     Art: CctvArt,
   },
   {
     id: "home-automation",
     title: "Home Automation",
-    text: "Lighting, climate, curtains and appliances working together from one app or a single touch.",
-    tags: ["Lighting", "Climate", "Scenes"],
-    Icon: Home,
+    points: ["Lighting", "Climate", "Scenes"],
     Art: AutomationArt,
   },
   {
     id: "networking",
     title: "Networking",
-    text: "Structured cabling, Wi-Fi and secure networks built to stay fast and reliable as you grow.",
-    tags: ["Structured cabling", "Wi-Fi", "Secure access"],
-    Icon: Network,
+    points: ["Structured cabling", "Wi-Fi", "Secure access"],
     Art: NetworkArt,
   },
   {
     id: "fire-alarm",
     title: "Fire Alarm",
-    text: "Detection and alarm systems designed for early warning and a clear, dependable response.",
-    tags: ["Detection", "Alarms", "Control panels"],
-    Icon: Flame,
+    points: ["Detection", "Alarms", "Control panels"],
     Art: FireArt,
   },
   {
     id: "intercom",
     title: "Intercom",
-    text: "Clear audio and video door communication for homes, offices and buildings.",
-    tags: ["Video", "Audio", "Door entry"],
-    Icon: Phone,
+    points: ["Video", "Audio", "Door entry"],
     Art: IntercomArt,
   },
   {
     id: "sound-systems",
     title: "Sound Systems",
-    text: "Background music, public address and audio for homes, venues and workspaces.",
-    tags: ["Background music", "Public address", "Multi-room"],
-    Icon: Volume2,
+    points: ["Background music", "Public address", "Multi-room"],
     Art: SoundArt,
   },
 ];
@@ -336,24 +313,6 @@ const HEADING = "Security systems, end to end";
 
 export default function Services() {
   const rootRef = useRef<HTMLElement>(null);
-  const [active, setActive] = useState(0);
-
-  const next = () => {
-    setActive((current) => (current + 1) % SERVICES.length);
-  };
-
-  const onPanelMove = (event: MouseEvent<HTMLDivElement>) => {
-    const rect = event.currentTarget.getBoundingClientRect();
-
-    event.currentTarget.style.setProperty(
-      "--mx",
-      `${event.clientX - rect.left}px`,
-    );
-    event.currentTarget.style.setProperty(
-      "--my",
-      `${event.clientY - rect.top}px`,
-    );
-  };
 
   useGSAP(
     () => {
@@ -385,22 +344,13 @@ export default function Services() {
           scrollTrigger: once(".svc-head"),
         });
 
-        gsap.from(".svc-row", {
-          y: 24,
+        gsap.from(".svc-card", {
+          y: 32,
           opacity: 0,
-          duration: 0.75,
+          duration: 0.85,
           ease: "power3.out",
-          stagger: 0.09,
-          scrollTrigger: once(".svc-list", "top 82%"),
-        });
-
-        gsap.from(".svc-panel-card", {
-          y: 28,
-          opacity: 0,
-          scale: 0.98,
-          duration: 0.9,
-          ease: "power3.out",
-          scrollTrigger: once(".svc-panel-card", "top 82%"),
+          stagger: 0.1,
+          scrollTrigger: once(".svc-grid", "top 82%"),
         });
 
         gsap.from(".svc-cta", {
@@ -438,7 +388,19 @@ export default function Services() {
     >
       <style>{`
         /* ----------------------------------------------------------
-           Animation keyframes
+           Heading color (dark = electric, light = deep cyan)
+        ---------------------------------------------------------- */
+
+        .svc-sec {
+          --svc-h2: #1ce8f0;
+        }
+
+        .light .svc-sec {
+          --svc-h2: #07505a;
+        }
+
+        /* ----------------------------------------------------------
+           Illustration keyframes
         ---------------------------------------------------------- */
 
         @keyframes svc-spin {
@@ -491,14 +453,13 @@ export default function Services() {
           100% { opacity: 0; }
         }
 
-        @keyframes svc-fill {
-          from { transform: scaleX(0); }
-          to { transform: scaleX(1); }
-        }
-
         @keyframes svc-float {
           0%, 100% { transform: translateY(0); }
           50% { transform: translateY(-5px); }
+        }
+
+        @keyframes svc-beam {
+          to { transform: rotate(360deg); }
         }
 
         /* ----------------------------------------------------------
@@ -547,116 +508,100 @@ export default function Services() {
           animation: svc-wave 1.9s ease-in-out infinite;
         }
 
-        .svc-panel[data-active="false"] .svc-art * {
-          animation-play-state: paused;
-        }
-
-        /* ----------------------------------------------------------
-           Autoplay progress
-        ---------------------------------------------------------- */
-
-        .svc-progress {
-          transform-origin: left;
-          animation: svc-fill 6s linear forwards;
-        }
-
-        .svc-sec:hover .svc-progress,
-        .svc-sec:focus-within .svc-progress {
-          animation-play-state: paused;
-        }
-
-        /* ----------------------------------------------------------
-           Service list
-        ---------------------------------------------------------- */
-
-        .svc-row {
-          transition:
-            border-color 350ms ease,
-            background-color 350ms ease;
-        }
-
-        .svc-row button {
-          transition: color 350ms ease;
-        }
-
-        .svc-icon {
-          transition:
-            transform 400ms cubic-bezier(.16, 1, .3, 1),
-            border-color 350ms ease,
-            background-color 350ms ease,
-            color 350ms ease,
-            box-shadow 350ms ease;
-        }
-
-        .svc-row button:hover .svc-icon {
-          transform: translateY(-2px);
-        }
-
-        .svc-arrow {
-          transition:
-            transform 400ms cubic-bezier(.16, 1, .3, 1),
-            color 350ms ease;
-        }
-
-        .svc-row button:hover .svc-arrow {
-          transform: translate(2px, -2px);
-        }
-
-        /* ----------------------------------------------------------
-           Preview card
-        ---------------------------------------------------------- */
-
-        .svc-panel-card {
-          isolation: isolate;
-          transform-style: preserve-3d;
-        }
-
-        .svc-panel-card::before {
-          content: "";
-          position: absolute;
-          inset: 0;
-          z-index: 0;
-          pointer-events: none;
-          border-radius: inherit;
-          background:
-            linear-gradient(
-              135deg,
-              color-mix(in srgb, var(--accent) 5%, transparent),
-              transparent 42%,
-              transparent 72%,
-              color-mix(in srgb, var(--accent) 3%, transparent)
-            );
-        }
-
-        .svc-panel-glow {
-          transition: opacity 700ms ease;
-        }
-
-        .svc-panel {
-          will-change: opacity, transform, filter;
-        }
-
-        .svc-panel-art {
+        .svc-art-wrap {
           animation: svc-float 5s ease-in-out infinite;
         }
 
-        .svc-tag {
-          background: var(--glass-bg);
-          border: 1px solid var(--glass-border);
-          color: var(--fg-muted);
+        /* ----------------------------------------------------------
+           Cards (same style as the Why Choose Us cards)
+        ---------------------------------------------------------- */
+
+        .svc-card {
+          position: relative;
+          overflow: hidden;
+          padding: 1px;
+          border-radius: 0 28px 0 28px;
+          background: var(--edge);
+          isolation: isolate;
           transition:
-            color 300ms ease,
+            transform 400ms cubic-bezier(.16, 1, .3, 1),
+            box-shadow 400ms ease;
+        }
+
+        .svc-card::before {
+          content: "";
+          position: absolute;
+          inset: -50%;
+          z-index: 0;
+          background: conic-gradient(
+            from 0deg at 50% 50%,
+            transparent 0deg,
+            transparent 300deg,
+            var(--accent) 360deg
+          );
+          opacity: .7;
+          animation: svc-beam 6s linear infinite;
+        }
+
+        .svc-card-inner {
+          position: relative;
+          z-index: 1;
+          height: 100%;
+          border-radius: inherit;
+          background: var(--bg);
+          transition: background-color 400ms ease;
+        }
+
+        .svc-rule {
+          display: block;
+          width: 40px;
+          height: 1px;
+          background: linear-gradient(90deg, transparent, var(--accent), transparent);
+          opacity: 0.8;
+          transition: width 400ms cubic-bezier(.16, 1, .3, 1);
+        }
+
+        .svc-dot {
+          flex-shrink: 0;
+          margin-top: 0.62em;
+          width: 5px;
+          height: 5px;
+          border-radius: 9999px;
+          background: var(--accent);
+          box-shadow: 0 0 8px color-mix(in srgb, var(--accent) 55%, transparent);
+        }
+
+        .svc-link {
+          transition:
             border-color 300ms ease,
             background-color 300ms ease,
-            transform 300ms ease;
+            transform 300ms cubic-bezier(.16, 1, .3, 1);
+        }
+
+        .svc-link svg {
+          transition: transform 300ms ease;
         }
 
         @media (hover: hover) {
-          .svc-tag:hover {
-            color: var(--accent);
+          .svc-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px -18px color-mix(in srgb, var(--accent) 35%, transparent);
+          }
+
+          .svc-card:hover .svc-card-inner {
+            background: var(--bg-alt);
+          }
+
+          .svc-card:hover .svc-rule {
+            width: 64px;
+          }
+
+          .svc-link:hover {
             border-color: var(--accent);
-            background: var(--accent-soft);
-            transform: translateY(-2px);
+          }
+
+          .svc-link:hover svg {
+            transform: translateX(3px);
           }
         }
 
@@ -685,29 +630,19 @@ export default function Services() {
         }
 
         /* ----------------------------------------------------------
-           Responsive adjustments
-        ---------------------------------------------------------- */
-
-        @media (max-width: 1023px) {
-          .svc-panel-art {
-            animation: none;
-          }
-        }
-
-        /* ----------------------------------------------------------
            Accessibility
         ---------------------------------------------------------- */
 
         @media (prefers-reduced-motion: reduce) {
           .svc-art *,
-          .svc-progress,
-          .svc-panel-art {
+          .svc-art-wrap,
+          .svc-card::before {
             animation: none !important;
           }
 
-          .svc-row *,
-          .svc-panel,
-          .svc-tag,
+          .svc-card,
+          .svc-card-inner,
+          .svc-link,
           .svc-cta a {
             transition-duration: .01ms !important;
           }
@@ -727,22 +662,22 @@ export default function Services() {
       <div className="container-x relative">
         {/* Section heading */}
         <div className="section-head section-head--center svc-head">
-          <h2 className="t-h2 font-semibold" style={{ color: "#1ce8f0" }}>
-  {HEADING.split(" ").map((word, index) => (
-    <span
-      key={word + index}
-      aria-hidden="true"
-      className="mr-[0.2em] inline-block overflow-hidden align-bottom"
-    >
-      <span className="svc-word inline-block">
-        {word}
-        {index === 1 || index === 2 ? (
-          <span className="text-accent"> </span>
-        ) : null}
-      </span>
-    </span>
-  ))}
-</h2>
+          <h2 className="t-h2 font-semibold" style={{ color: "var(--svc-h2)" }}>
+            {HEADING.split(" ").map((word, index) => (
+              <span
+                key={word + index}
+                aria-hidden="true"
+                className="mr-[0.2em] inline-block overflow-hidden align-bottom"
+              >
+                <span className="svc-word inline-block">
+                  {word}
+                  {index === 1 || index === 2 ? (
+                    <span className="text-accent"> </span>
+                  ) : null}
+                </span>
+              </span>
+            ))}
+          </h2>
 
           <p className="svc-head-p t-body max-w-[54ch] text-center">
             Six disciplines, one accountable team. From the first site survey
@@ -750,194 +685,60 @@ export default function Services() {
           </p>
         </div>
 
-        <div className="relative grid items-start gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12">
-          {/* Service list */}
-          <ul className="svc-list flex flex-col">
-            {SERVICES.map((service, index) => {
-              const isActive = index === active;
-
-              return (
-                <li
-                  key={service.id}
-                  className={`svc-row relative border-b border-edge first:border-t ${
-                    isActive ? "bg-accent-soft/40" : ""
-                  }`}
+        {/* Service cards */}
+        <div className="svc-grid grid gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
+          {SERVICES.map(({ id, title, points, Art }, index) => (
+            <div key={id} id={id} className="svc-card">
+              <div className="svc-card-inner flex h-full flex-col items-center p-6 sm:p-7">
+                {/* Animated illustration */}
+                <div
+                  className="svc-art-wrap mb-3 h-36 w-44 text-accent sm:h-40 sm:w-48"
+                  style={{ animationDelay: `${index * 0.4}s` }}
                 >
-                  <button
-                    type="button"
-                    aria-expanded={isActive}
-                    aria-controls={`service-description-${service.id}`}
-                    onClick={() => setActive(index)}
-                    onMouseEnter={() => setActive(index)}
-                    onFocus={() => setActive(index)}
-                    className="group flex min-h-[76px] w-full cursor-pointer items-center gap-3 py-4 text-left sm:gap-4 lg:py-5"
-                  >
-                    <span
-                      className={`svc-icon flex size-10 shrink-0 items-center justify-center rounded-full border sm:size-11 ${
-                        isActive
-                          ? "border-accent bg-accent-soft text-accent shadow-[0_0_16px_color-mix(in_srgb,var(--accent)_12%,transparent)]"
-                          : "border-edge bg-bg-alt text-fg-muted group-hover:border-accent group-hover:text-accent"
-                      }`}
+                  <Art />
+                </div>
+
+                {/* Heading */}
+                <h3
+                  className="mb-3 text-center font-display text-[1.0625rem] font-semibold leading-snug tracking-tight sm:text-[1.125rem]"
+                  style={{ color: "var(--svc-h2)" }}
+                >
+                  {title}
+                </h3>
+
+                <span className="svc-rule mb-4" aria-hidden="true" />
+
+                {/* Three equal points */}
+                <ul className="w-full space-y-2.5 text-left">
+                  {points.map((point) => (
+                    <li
+                      key={point}
+                      className="flex items-start gap-2.5 text-[13px] leading-[1.6] text-fg-muted"
                     >
-                      <service.Icon className="size-[18px]" />
-                    </span>
+                      <span className="svc-dot" aria-hidden="true" />
+                      <span>{point}</span>
+                    </li>
+                  ))}
+                </ul>
 
-                    <span
-                      className={`font-display text-[15px] font-medium leading-snug transition-colors duration-300 sm:text-base ${
-                        isActive ? "text-accent" : "text-fg"
-                      }`}
-                    >
-                      {service.title}
-                    </span>
-
-                    <ArrowUpRight
-                      aria-hidden="true"
-                      className={`svc-arrow ml-auto size-[18px] shrink-0 ${
-                        isActive ? "rotate-45 text-accent" : "text-fg-muted"
-                      }`}
-                    />
-                  </button>
-
-                  {/* Expandable description */}
-                  <div
-                    id={`service-description-${service.id}`}
-                    aria-hidden={!isActive}
-                    className="grid"
-                    style={{
-                      gridTemplateRows: isActive ? "1fr" : "0fr",
-                      transition:
-                        "grid-template-rows 500ms cubic-bezier(.16, 1, .3, 1)",
-                    }}
+                {/* Link pinned to the bottom so all cards line up */}
+                <div className="mt-auto w-full pt-6">
+                  <Link
+                    href={`/services#${id}`}
+                    aria-label={`Explore ${title}`}
+                    className="svc-link flex min-h-10 w-full items-center justify-center gap-2 rounded-full border border-edge bg-accent-soft px-4 py-2.5 text-[12px] font-medium tracking-wide text-accent"
                   >
-                    <div className="overflow-hidden">
-                      <div
-                        className="flex flex-col items-start gap-4 pb-5 pl-[52px] pr-3 sm:pl-[60px]"
-                        style={{
-                          opacity: isActive ? 1 : 0,
-                          transform: isActive
-                            ? "translateY(0)"
-                            : "translateY(6px)",
-                          transition:
-                            "opacity 350ms ease, transform 350ms ease",
-                        }}
-                      >
-                        <p className="max-w-[48ch] text-[13px] leading-[1.8] text-fg-muted sm:text-sm">
-                          {service.text}
-                        </p>
-
-                        <Link
-                          href={`/services#${service.id}`}
-                          tabIndex={isActive ? 0 : -1}
-                          className="inline-flex min-h-9 items-center gap-2 rounded-full border border-edge bg-accent-soft px-3.5 py-2 text-[11px] font-medium tracking-wide text-accent transition-all duration-300 hover:border-accent hover:bg-accent-soft"
-                        >
-                          Explore {service.title}
-                          <ArrowRight
-                            className="size-3.5"
-                            aria-hidden="true"
-                          />
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Active service progress */}
-                  {isActive && (
-                    <span
-                      key={service.id}
-                      aria-hidden="true"
-                      onAnimationEnd={next}
-                      className="svc-progress pointer-events-none absolute -bottom-px left-0 h-px w-full bg-accent"
-                    />
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-
-          {/* Sticky desktop preview */}
-          <div className="svc-panel-wrap sticky top-24 hidden h-fit self-start lg:block">
-            <div
-              className="svc-panel-card glass relative h-[440px] overflow-hidden rounded-card border border-edge"
-              onMouseMove={onPanelMove}
-            >
-              {/* Mouse-following glow */}
-              <div
-                aria-hidden="true"
-                className="svc-panel-glow pointer-events-none absolute inset-0 z-0 opacity-0"
-                style={{
-                  background:
-                    "radial-gradient(320px circle at var(--mx, 50%) var(--my, 35%), color-mix(in srgb, var(--accent) 13%, transparent), transparent 68%)",
-                }}
-              />
-
-              {/* Top highlight */}
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-x-10 top-0 z-0 h-px"
-                style={{
-                  background:
-                    "linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent) 45%, transparent), transparent)",
-                }}
-              />
-
-              {SERVICES.map((service, index) => {
-                const isActive = index === active;
-
-                return (
-                  <div
-                    key={service.id}
-                    data-active={isActive}
-                    aria-hidden={!isActive}
-                    className="svc-panel pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center gap-5 p-7 text-center"
-                    style={{
-                      opacity: isActive ? 1 : 0,
-                      transform: isActive
-                        ? "translateY(0) scale(1)"
-                        : "translateY(14px) scale(.98)",
-                      filter: isActive ? "blur(0)" : "blur(5px)",
-                      transition:
-                        "opacity 500ms cubic-bezier(.16, 1, .3, 1), transform 600ms cubic-bezier(.16, 1, .3, 1), filter 500ms ease",
-                    }}
-                  >
-                    {/* Illustration */}
-                    <div className="svc-panel-art h-40 w-48 text-accent xl:h-44 xl:w-52">
-                      <service.Art />
-                    </div>
-
-                    {/* Service information */}
-                    <div className="flex flex-col items-center gap-3">
-                      <h3 className="t-h3 text-fg">
-                        {service.title}
-                      </h3>
-
-                      <ul className="flex flex-wrap justify-center gap-2">
-                        {service.tags.map((tag) => (
-                          <li
-                            key={tag}
-                            className="svc-tag rounded-full px-3 py-1 text-[11px] leading-relaxed"
-                          >
-                            {tag}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    {/* Active indicator */}
-                    <div className="mt-1 flex items-center gap-2">
-                      <span className="size-1.5 rounded-full bg-accent shadow-[0_0_8px_var(--accent)]" />
-                      <span className="text-[9px] font-medium uppercase tracking-[0.18em] text-fg-muted">
-                        System overview
-                      </span>
-                    </div>
-                  </div>
-                );
-              })}
+                    Explore
+                    <ArrowRight className="size-3.5" aria-hidden="true" />
+                  </Link>
+                </div>
+              </div>
             </div>
-          </div>
+          ))}
         </div>
 
         {/* Bottom CTA */}
-        <div className="svc-cta mt-8 flex justify-center lg:mt-10">
+        <div className="svc-cta mt-12 flex justify-center lg:mt-16">
           <Link href="/services" className="btn btn--primary">
             View all services
             <ArrowRight className="size-4" aria-hidden="true" />

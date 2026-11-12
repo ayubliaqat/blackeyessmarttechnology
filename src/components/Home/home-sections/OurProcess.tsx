@@ -329,6 +329,18 @@ export default function Process() {
     >
       <style>{`
         /* ----------------------------------------------------------
+           Heading color (dark = electric, light = deep cyan)
+        ---------------------------------------------------------- */
+
+        .process-sec {
+          --process-h2: #1ce8f0;
+        }
+
+        .light .process-sec {
+          --process-h2: #07505a;
+        }
+
+        /* ----------------------------------------------------------
            Compact spacing (matches Why choose us)
         ---------------------------------------------------------- */
 
@@ -478,7 +490,7 @@ export default function Process() {
           <h2
             aria-label={HEADING}
             className="t-h2 font-semibold"
-            style={{ color: "#1ce8f0" }}
+            style={{ color: "var(--process-h2)" }}
           >
             {HEADING.split(" ").map((word, index) => (
               <span
@@ -573,7 +585,10 @@ export default function Process() {
                         {step.detail}
                       </span>
 
-                      <h3 className="font-display text-[15px] font-medium leading-snug text-fg lg:text-base">
+                      <h3
+                        className="font-display text-[15px] font-medium leading-snug lg:text-base"
+                        style={{ color: "var(--process-h2)" }}
+                      >
                         {step.title}
                       </h3>
 
@@ -635,7 +650,10 @@ export default function Process() {
                       {step.detail}
                     </span>
 
-                    <h3 className="mt-1 font-display text-[15px] font-medium text-fg">
+                    <h3
+                      className="mt-1 font-display text-[15px] font-medium"
+                      style={{ color: "var(--process-h2)" }}
+                    >
                       {step.title}
                     </h3>
 

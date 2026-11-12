@@ -564,3 +564,50 @@ html.lenis body {
     transform: none;
   }
 }
+@keyframes space-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes space-scan-line {
+  0%, 100% { transform: translateY(-16px); }
+  50% { transform: translateY(32px); }
+}
+
+@keyframes space-blink {
+  50% { opacity: .2; }
+}
+
+@keyframes space-dash {
+  to { stroke-dashoffset: -20; }
+}
+
+@keyframes space-pulse {
+  0%, 100% {
+    opacity: .35;
+    transform: scale(.88);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes space-ripple {
+  0% {
+    transform: scale(.3);
+    opacity: .65;
+  }
+  100% {
+    transform: scale(1.35);
+    opacity: 0;
+  }
+}
+
+@keyframes space-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes space-beam {
+  to { transform: rotate(360deg); }
+}

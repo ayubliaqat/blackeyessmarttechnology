@@ -88,13 +88,17 @@ export default function Header() {
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
 
+  // Compact nav link: smaller text, tighter vertical padding
   const linkBase =
-    "relative inline-flex items-center gap-1 py-2 text-[0.9375rem] font-medium transition-colors duration-300 after:absolute after:-bottom-0.5 after:left-0 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-accent after:transition-transform after:duration-300 hover:text-accent hover:after:scale-x-100";
+    "relative inline-flex items-center gap-1 py-1.5 text-[0.875rem] font-medium tracking-[0.01em] transition-colors duration-300 after:absolute after:-bottom-0.5 after:left-0 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-accent after:transition-transform after:duration-300 hover:text-accent hover:after:scale-x-100";
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 w-full">
-      {/* Full-width bar: no side margin, no rounded corners */}
       <style>{`
+        /* ----------------------------------------------------------
+           Full-width bar: no side margin, no rounded corners
+        ---------------------------------------------------------- */
+
         .header-bar {
           width: 100%;
           max-width: none;
@@ -104,29 +108,108 @@ export default function Header() {
           border-right: 0 !important;
           border-top: 0 !important;
         }
+
+        /* Compact "Get a Quote" button inside the bar and mobile menu */
+        .header-bar .btn,
+        .header-mobile .btn {
+          min-height: 0;
+          padding: 0.5rem 1.1rem;
+          font-size: 0.875rem;
+          line-height: 1.2;
+          gap: 0.4rem;
+        }
+
+        .header-mobile .btn {
+          padding: 0.65rem 1.1rem;
+          font-size: 0.875rem;
+        }
+
+        /* Light mode: solid bar with a soft edge and shadow */
+        html.light .header-bar {
+          background: rgba(255, 255, 255, 0.94);
+          border-bottom: 1px solid rgba(7, 80, 90, 0.14) !important;
+          box-shadow: 0 8px 24px -16px rgba(0, 8, 24, 0.25);
+        }
+
+        /* ----------------------------------------------------------
+           Services dropdown card
+        ---------------------------------------------------------- */
+
+        .header-dropdown {
+          background: color-mix(in srgb, var(--bg) 94%, transparent);
+          border: 1px solid var(--edge);
+          box-shadow: var(--glass-shadow);
+          -webkit-backdrop-filter: blur(20px);
+          backdrop-filter: blur(20px);
+        }
+
+        html.light .header-dropdown {
+          background: #ffffff;
+          border-color: rgba(7, 80, 90, 0.18);
+          box-shadow:
+            0 20px 40px -16px rgba(0, 8, 24, 0.28),
+            0 4px 12px -6px rgba(0, 8, 24, 0.12);
+        }
+
+        html.light .header-dropdown a:hover,
+        html.light .header-dropdown a:focus-visible {
+          background: rgba(7, 80, 90, 0.08);
+          color: #07505a;
+        }
+
+        /* ----------------------------------------------------------
+           Mobile menu panel
+        ---------------------------------------------------------- */
+
+        .header-mobile {
+          background: color-mix(in srgb, var(--bg) 96%, transparent);
+        }
+
+        html.light .header-mobile {
+          background: rgba(244, 248, 250, 0.98);
+        }
+
+        html.light .header-mobile .btn--primary {
+          color: #f0f0f0;
+        }
+
+        /* ----------------------------------------------------------
+           Menu button (light mode)
+        ---------------------------------------------------------- */
+
+        html.light .header-menu-btn {
+          background: #ffffff;
+          border-color: rgba(7, 80, 90, 0.22);
+          color: #000810;
+        }
       `}</style>
 
       {/* ---------- Bar: logo left | nav center | actions right ---------- */}
       <div
         className={`glass glass-bar header-bar relative z-50 w-full transition-[height] duration-500 ${
-          scrolled ? "h-20" : "h-20 md:h-24"
+          scrolled ? "h-[3.75rem]" : "h-[4.25rem] md:h-[4.75rem]"
         }`}
       >
         {/* Full width with side padding only (no max-width, no margin) */}
-        <div className="w-full px-4 sm:px-6 lg:px-10 grid h-full grid-cols-[1fr_auto] items-center gap-4 lg:grid-cols-[1fr_auto_1fr]">
+        <div className="grid h-full w-full grid-cols-[1fr_auto] items-center gap-3 px-4 sm:px-6 lg:grid-cols-[1fr_auto_1fr] lg:px-8">
           {/* Left: logo */}
           <Link
             href="/"
             aria-label={`${SITE.name} home`}
             className="flex shrink-0 items-center justify-self-start"
           >
-            <Logo priority className="h-12 w-auto md:h-16" />
+            <Logo
+              priority
+              className={`w-auto transition-[height] duration-500 ${
+                scrolled ? "h-9 md:h-10" : "h-10 md:h-12"
+              }`}
+            />
           </Link>
 
           {/* Center: desktop nav */}
           <nav
             aria-label="Primary"
-            className="hidden items-center justify-self-center gap-6 lg:flex xl:gap-8"
+            className="hidden items-center justify-self-center gap-5 lg:flex xl:gap-7"
           >
             {NAV_LINKS.map((item) => {
               const active = isActive(item.href);
@@ -161,28 +244,28 @@ export default function Header() {
                     >
                       {item.label}
                       <ChevronDown
-                        className={`h-4 w-4 transition-transform duration-300 ${
+                        className={`h-3.5 w-3.5 transition-transform duration-300 ${
                           dropdownOpen ? "rotate-180" : ""
                         }`}
                         aria-hidden="true"
                       />
                     </Link>
 
-                    {/* Dropdown: names only (pt-4 bridges the gap so hover never breaks) */}
+                    {/* Dropdown: names only (pt-3 bridges the gap so hover never breaks) */}
                     <div
-                      className={`absolute left-1/2 top-full w-[260px] -translate-x-1/2 pt-4 transition-[opacity,transform,visibility] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                      className={`absolute left-1/2 top-full w-[235px] -translate-x-1/2 pt-3 transition-[opacity,transform,visibility] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
                         dropdownOpen
                           ? "visible translate-y-0 opacity-100"
                           : "invisible translate-y-2 opacity-0"
                       }`}
                     >
-                      <ul className="rounded-2xl border border-edge bg-[color-mix(in_srgb,var(--bg)_94%,transparent)] p-2 [box-shadow:var(--glass-shadow)] backdrop-blur-xl">
+                      <ul className="header-dropdown rounded-xl p-1.5">
                         {SERVICES.map((service) => (
                           <li key={service.slug}>
                             <Link
                               href={service.href}
                               onClick={() => setDropdownOpen(false)}
-                              className="block rounded-xl px-4 py-2 text-[0.9375rem] font-medium text-fg transition-[background-color,color] duration-200 hover:bg-accent-soft hover:text-accent focus-visible:bg-accent-soft focus-visible:text-accent"
+                              className="block rounded-lg px-3 py-1.5 text-[0.875rem] font-medium text-fg transition-[background-color,color] duration-200 hover:bg-accent-soft hover:text-accent focus-visible:bg-accent-soft focus-visible:text-accent"
                             >
                               {service.title}
                             </Link>
@@ -210,7 +293,7 @@ export default function Header() {
           </nav>
 
           {/* Right: theme toggle + Get a Quote (+ menu button on mobile) */}
-          <div className="flex items-center gap-2 justify-self-end md:gap-4">
+          <div className="flex items-center gap-2 justify-self-end md:gap-3">
             <ThemeToggle />
             <div className="hidden sm:block">
               <Link href="/quote" className="btn btn--primary">
@@ -223,12 +306,12 @@ export default function Header() {
               aria-label={mobileOpen ? "Close menu" : "Open menu"}
               aria-expanded={mobileOpen}
               aria-controls="mobile-menu"
-              className="inline-flex h-12 w-12 shrink-0 cursor-pointer items-center justify-center rounded-full border border-edge bg-accent-soft text-fg transition-[color,border-color] duration-300 hover:border-accent hover:text-accent lg:hidden"
+              className="header-menu-btn inline-flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full border border-edge bg-accent-soft text-fg transition-[color,border-color] duration-300 hover:border-accent hover:text-accent lg:hidden"
             >
               {mobileOpen ? (
-                <X className="h-5 w-5" aria-hidden="true" />
+                <X className="h-4 w-4" aria-hidden="true" />
               ) : (
-                <Menu className="h-5 w-5" aria-hidden="true" />
+                <Menu className="h-4 w-4" aria-hidden="true" />
               )}
             </button>
           </div>
@@ -239,11 +322,11 @@ export default function Header() {
       <div
         id="mobile-menu"
         data-lenis-prevent
-        className={`fixed inset-0 z-40 overflow-y-auto overscroll-contain bg-[color-mix(in_srgb,var(--bg)_96%,transparent)] pb-8 pt-28 backdrop-blur-xl transition-[opacity,visibility] duration-300 lg:hidden ${
+        className={`header-mobile fixed inset-0 z-40 overflow-y-auto overscroll-contain pb-8 pt-20 backdrop-blur-xl transition-[opacity,visibility] duration-300 lg:hidden ${
           mobileOpen ? "visible opacity-100" : "invisible opacity-0"
         }`}
       >
-        <nav aria-label="Mobile" className="w-full px-4 sm:px-6 lg:px-10">
+        <nav aria-label="Mobile" className="w-full px-4 sm:px-6 lg:px-8">
           <ul className="flex flex-col divide-y divide-edge border-y border-edge">
             {NAV_LINKS.map((item) => {
               if ("children" in item) {
@@ -253,7 +336,7 @@ export default function Header() {
                       type="button"
                       onClick={() => setMobileServicesOpen((v) => !v)}
                       aria-expanded={mobileServicesOpen}
-                      className={`flex min-h-12 w-full cursor-pointer items-center justify-between px-2 py-3 text-lg font-semibold transition-colors duration-200 active:bg-accent-soft ${
+                      className={`flex min-h-11 w-full cursor-pointer items-center justify-between px-2 py-2.5 text-base font-semibold transition-colors duration-200 active:bg-accent-soft ${
                         mobileServicesOpen || isActive(item.href)
                           ? "text-accent"
                           : "text-fg"
@@ -261,7 +344,7 @@ export default function Header() {
                     >
                       {item.label}
                       <ChevronDown
-                        className={`h-5 w-5 transition-transform duration-300 ${
+                        className={`h-4 w-4 transition-transform duration-300 ${
                           mobileServicesOpen ? "rotate-180" : ""
                         }`}
                         aria-hidden="true"
@@ -286,7 +369,7 @@ export default function Header() {
                               <Link
                                 href={service.href}
                                 aria-current={current ? "page" : undefined}
-                                className={`-ml-px block min-h-11 border-l-2 px-4 py-3 text-base transition-colors duration-200 hover:bg-accent-soft hover:text-accent focus-visible:bg-accent-soft active:bg-accent-soft active:text-accent ${
+                                className={`-ml-px block min-h-10 border-l-2 px-4 py-2.5 text-sm transition-colors duration-200 hover:bg-accent-soft hover:text-accent focus-visible:bg-accent-soft active:bg-accent-soft active:text-accent ${
                                   current
                                     ? "border-accent bg-accent-soft text-accent"
                                     : "border-transparent text-fg-muted"
@@ -307,7 +390,7 @@ export default function Header() {
                   <Link
                     href={item.href}
                     aria-current={isActive(item.href) ? "page" : undefined}
-                    className={`block min-h-12 px-2 py-3 text-lg font-semibold transition-colors duration-200 hover:text-accent active:bg-accent-soft ${
+                    className={`block min-h-11 px-2 py-2.5 text-base font-semibold transition-colors duration-200 hover:text-accent active:bg-accent-soft ${
                       isActive(item.href) ? "text-accent" : "text-fg"
                     }`}
                   >
@@ -317,7 +400,7 @@ export default function Header() {
               );
             })}
           </ul>
-          <Link href="/quote" className="btn btn--primary mt-8 w-full">
+          <Link href="/quote" className="btn btn--primary mt-6 w-full">
             Get a Quote
           </Link>
         </nav>

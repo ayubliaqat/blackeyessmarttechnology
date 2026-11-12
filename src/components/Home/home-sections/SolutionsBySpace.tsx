@@ -1,142 +1,283 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, type ComponentType } from "react";
+import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
-import {
-  House,
-  Building2,
-  Store,
-  Warehouse,
-  Camera,
-  Fingerprint,
-  AudioLines,
-  ScanEye,
-  LockKeyhole,
-  BellRing,
-  ShieldCheck,
-  ArrowUpRight,
-  Activity,
-  Wifi,
-} from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
-type DeviceType =
-  | "camera"
-  | "motion"
-  | "access"
-  | "audio"
-  | "lock"
-  | "alarm";
+/* ==========================================================================
+   Animated space illustrations (matching Services custom SVG aesthetic)
+   ========================================================================== */
 
-type Device = {
-  type: DeviceType;
-  label: string;
-  x: number;
-  y: number;
+const svgProps = {
+  viewBox: "0 0 240 200",
+  fill: "none",
+  stroke: "currentColor",
+  strokeWidth: 1.5,
+  className: "space-art h-full w-full",
+  "aria-hidden": true as const,
 };
 
-const DEVICE_ICONS = {
-  camera: Camera,
-  motion: ScanEye,
-  access: Fingerprint,
-  audio: AudioLines,
-  lock: LockKeyhole,
-  alarm: BellRing,
-};
+function ResidentialArt() {
+  return (
+    <svg {...svgProps}>
+      <circle
+        cx="120"
+        cy="108"
+        r="74"
+        strokeDasharray="4 8"
+        opacity=".35"
+        className="space-spin"
+      />
+      <path d="M58 104 L120 48 L182 104" strokeLinejoin="round" />
+      <path d="M74 92 V158 H166 V92" strokeLinejoin="round" />
+      <rect x="106" y="118" width="28" height="40" rx="3" opacity=".8" />
+      <circle
+        cx="128"
+        cy="138"
+        r="2.5"
+        fill="currentColor"
+        stroke="none"
+        className="space-blink"
+      />
+      <circle cx="74" cy="92" r="5" fill="currentColor" opacity=".2" />
+      <circle
+        cx="74"
+        cy="92"
+        r="3"
+        fill="currentColor"
+        stroke="none"
+        className="space-pulse"
+      />
+      <circle cx="166" cy="92" r="5" fill="currentColor" opacity=".2" />
+      <circle
+        cx="166"
+        cy="92"
+        r="3"
+        fill="currentColor"
+        stroke="none"
+        className="space-pulse"
+        style={{ animationDelay: "0.7s" }}
+      />
+      <line
+        x1="64"
+        y1="105"
+        x2="176"
+        y2="105"
+        strokeWidth="1.5"
+        opacity=".65"
+        className="space-scan-line"
+      />
+    </svg>
+  );
+}
 
-const SPACES: {
+function CommercialArt() {
+  return (
+    <svg {...svgProps}>
+      <rect x="82" y="34" width="76" height="132" rx="4" />
+      <path d="M52 166 V78 H82" strokeLinejoin="round" opacity=".65" />
+      <path d="M188 166 V78 H158" strokeLinejoin="round" opacity=".65" />
+      <line
+        x1="67"
+        y1="78"
+        x2="67"
+        y2="46"
+        className="space-dash"
+        opacity=".5"
+      />
+      <line
+        x1="173"
+        y1="78"
+        x2="173"
+        y2="46"
+        className="space-dash"
+        opacity=".5"
+      />
+      {[52, 74, 96, 118].map((y, row) =>
+        [98, 120, 142].map((x, col) => (
+          <rect
+            key={`${x}-${y}`}
+            x={x - 6}
+            y={y}
+            width="12"
+            height="10"
+            rx="1.5"
+            fill="currentColor"
+            stroke="none"
+            opacity={(row + col) % 2 === 0 ? 0.65 : 0.25}
+            className="space-pulse"
+            style={{ animationDelay: `${(row * 3 + col) * 0.22}s` }}
+          />
+        )),
+      )}
+      <rect x="108" y="142" width="24" height="24" rx="2" opacity=".85" />
+    </svg>
+  );
+}
+
+function RetailArt() {
+  return (
+    <svg {...svgProps}>
+      <rect x="52" y="68" width="136" height="92" rx="4" />
+      <path
+        d="M46 68 L60 44 H180 L194 68 Z"
+        strokeLinejoin="round"
+        fill="currentColor"
+        fillOpacity=".1"
+      />
+      {[82, 108, 132, 158].map((x) => (
+        <line key={x} x1={x} y1="44" x2={x} y2="68" opacity=".45" />
+      ))}
+      <rect x="66" y="86" width="42" height="52" rx="3" opacity=".6" />
+      <rect x="132" y="86" width="42" height="74" rx="3" opacity=".8" />
+      <circle cx="120" cy="78" r="5" fill="currentColor" stroke="none" />
+      <path
+        d="M120 78 L84 148 H156 Z"
+        fill="currentColor"
+        stroke="none"
+        opacity=".12"
+        className="space-pulse"
+      />
+      <circle
+        cx="176"
+        cy="82"
+        r="3.5"
+        fill="#ef6464"
+        stroke="none"
+        className="space-blink"
+      />
+    </svg>
+  );
+}
+
+function IndustrialArt() {
+  return (
+    <svg {...svgProps}>
+      <circle cx="120" cy="106" r="76" opacity=".18" />
+      <circle
+        cx="120"
+        cy="106"
+        r="62"
+        strokeDasharray="6 6"
+        opacity=".45"
+        className="space-spin"
+      />
+      <path
+        d="M54 102 L86 78 V102 L120 78 V102 L154 78 V102 H186 V156 H54 Z"
+        strokeLinejoin="round"
+      />
+      <rect x="164" y="42" width="12" height="60" rx="2" opacity=".75" />
+      {[0, 0.8].map((delay) => (
+        <circle
+          key={delay}
+          cx="170"
+          cy="42"
+          r="24"
+          className="space-ripple"
+          style={{ animationDelay: `${delay}s` }}
+        />
+      ))}
+      <rect x="74" y="122" width="32" height="34" rx="2" opacity=".65" />
+      <rect x="134" y="122" width="32" height="34" rx="2" opacity=".65" />
+    </svg>
+  );
+}
+
+function WarehousingArt() {
+  const bays = [66, 102, 138];
+  return (
+    <svg {...svgProps}>
+      <path d="M44 86 Q120 38 196 86" strokeLinecap="round" />
+      <path d="M54 82 V160 H186 V82" strokeLinejoin="round" />
+      {bays.map((x, i) => (
+        <g key={x}>
+          <rect x={x} y="108" width="28" height="52" rx="2" opacity=".75" />
+          <line x1={x} y1="122" x2={x + 28} y2="122" opacity=".4" />
+          <line x1={x} y1="136" x2={x + 28} y2="136" opacity=".4" />
+          <circle
+            cx={x + 14}
+            cy="98"
+            r="3"
+            fill="currentColor"
+            stroke="none"
+            className="space-pulse"
+            style={{ animationDelay: `${i * 0.45}s` }}
+          />
+        </g>
+      ))}
+      <line
+        x1="36"
+        y1="160"
+        x2="204"
+        y2="160"
+        strokeDasharray="4 5"
+        className="space-dash"
+      />
+    </svg>
+  );
+}
+
+/* ==========================================================================
+   Data types & configuration (5 spaces total)
+   ========================================================================== */
+
+type Space = {
   id: string;
-  name: string;
-  subtitle: string;
-  description: string;
-  icon: typeof House;
-  solutions: string[];
-  devices: Device[];
-}[] = [
+  title: string;
+  points: string[];
+  Art: ComponentType;
+};
+
+const SPACES: Space[] = [
   {
     id: "residential",
-    name: "Residential",
-    subtitle: "Protection starts at home.",
-    description:
-      "Keep an eye on what matters most with intelligent surveillance and security designed around your home.",
-    icon: House,
-    solutions: ["CCTV Surveillance", "Smart Door Access", "Intruder Alarms"],
-    devices: [
-      { type: "camera", label: "Front CCTV", x: 18, y: 23 },
-      { type: "motion", label: "Motion Sensor", x: 82, y: 23 },
-      { type: "access", label: "Smart Entry", x: 18, y: 77 },
-      { type: "alarm", label: "Alarm Sensor", x: 82, y: 77 },
-    ],
+    title: "Residential",
+    points: ["IP cameras", "Remote viewing", "Access control"],
+    Art: ResidentialArt,
   },
   {
     id: "commercial",
-    name: "Commercial",
-    subtitle: "A smarter way to secure business.",
-    description:
-      "Protect your workplace, employees, and operations with integrated security and controlled access.",
-    icon: Building2,
-    solutions: ["Business CCTV", "Access Control", "24/7 Monitoring"],
-    devices: [
-      { type: "camera", label: "IP Camera", x: 18, y: 23 },
-      { type: "access", label: "Fingerprint", x: 82, y: 23 },
-      { type: "motion", label: "Occupancy Sensor", x: 18, y: 77 },
-      { type: "lock", label: "Smart Lock", x: 82, y: 77 },
-    ],
+    title: "Commercial",
+    points: ["Structured cabling", "Wi-Fi", "Secure access"],
+    Art: CommercialArt,
   },
   {
     id: "retail",
-    name: "Retail",
-    subtitle: "Every corner under control.",
-    description:
-      "Improve visibility across your store, monitor customer areas, and help safeguard valuable inventory.",
-    icon: Store,
-    solutions: ["Retail CCTV", "Loss Prevention", "Entry Monitoring"],
-    devices: [
-      { type: "camera", label: "Entry Camera", x: 18, y: 23 },
-      { type: "motion", label: "Movement Sensor", x: 82, y: 23 },
-      { type: "audio", label: "Audio Detection", x: 18, y: 77 },
-      { type: "camera", label: "Stock CCTV", x: 82, y: 77 },
-    ],
+    title: "Retail",
+    points: ["Detection", "Alarms", "Control panels"],
+    Art: RetailArt,
   },
   {
     id: "industrial",
-    name: "Industrial",
-    subtitle: "Security on a larger scale.",
-    description:
-      "Monitor critical facility areas, secure restricted zones, and maintain visibility across operations.",
-    icon: Warehouse,
-    solutions: ["Perimeter CCTV", "Restricted Access", "Facility Monitoring"],
-    devices: [
-      { type: "camera", label: "Perimeter CCTV", x: 18, y: 23 },
-      { type: "access", label: "Access Scanner", x: 82, y: 23 },
-      { type: "audio", label: "Sound Detection", x: 18, y: 77 },
-      { type: "alarm", label: "Facility Alarm", x: 82, y: 77 },
-    ],
+    title: "Industrial",
+    points: ["Video", "Audio", "Door entry"],
+    Art: IndustrialArt,
+  },
+  {
+    id: "warehousing",
+    title: "Warehousing",
+    points: ["Background music", "Public address", "Multi-room"],
+    Art: WarehousingArt,
   },
 ];
 
 const HEADING = "Solutions by space";
 
 /* ==========================================================================
-   Solutions by space
-   Same tokens, type scale and spacing as Services / Why choose us / Process.
+   Solutions by space component (3 per row)
    ========================================================================== */
 
 export default function SolutionsBySpace() {
-  const sectionRef = useRef<HTMLElement>(null);
-  const visualRef = useRef<HTMLDivElement>(null);
-  const hasMounted = useRef(false);
+  const rootRef = useRef<HTMLElement>(null);
 
-  const [activeSpace, setActiveSpace] = useState(0);
-  const active = SPACES[activeSpace];
-
-  /* ---------- Section entrance + ambient motion ---------- */
   useGSAP(
     () => {
-      const section = sectionRef.current;
+      const section = rootRef.current;
       if (!section) return;
 
       const mm = gsap.matchMedia();
@@ -167,39 +308,18 @@ export default function SolutionsBySpace() {
           scrollTrigger: once(".space-head"),
         });
 
-        gsap.from(".space-selector", {
-          y: 24,
+        gsap.from(".space-card", {
+          y: 32,
           opacity: 0,
-          duration: 0.75,
+          duration: 0.85,
           ease: "power3.out",
-          stagger: 0.09,
-          scrollTrigger: once(".space-selector-list", "top 82%"),
+          stagger: 0.1,
+          scrollTrigger: once(".space-grid", "top 82%"),
         });
-
-        gsap.from(".space-panel-card", {
-          y: 28,
-          opacity: 0,
-          scale: 0.98,
-          duration: 0.9,
-          ease: "power3.out",
-          scrollTrigger: once(".space-panel-card", "top 85%"),
-        });
-
-        gsap.fromTo(
-          ".space-connection",
-          { strokeDashoffset: 1 },
-          {
-            strokeDashoffset: 0,
-            duration: 0.85,
-            stagger: 0.12,
-            ease: "power2.inOut",
-            scrollTrigger: once(".space-plan", "top 88%"),
-          },
-        );
 
         gsap.to(".space-orb", {
           yPercent: 35,
-          xPercent: 6,
+          xPercent: -6,
           ease: "none",
           scrollTrigger: {
             trigger: section,
@@ -208,316 +328,219 @@ export default function SolutionsBySpace() {
             scrub: 1,
           },
         });
-
-        gsap.fromTo(
-          ".space-scan",
-          { top: "0%" },
-          {
-            top: "100%",
-            duration: 3.8,
-            repeat: -1,
-            repeatDelay: 1.2,
-            ease: "none",
-          },
-        );
-
-        gsap.to(".space-hub-pulse", {
-          scale: 1.65,
-          opacity: 0,
-          duration: 1.8,
-          repeat: -1,
-          ease: "power1.out",
-        });
-
-        gsap.to(".space-status-dot", {
-          opacity: 0.3,
-          duration: 0.8,
-          repeat: -1,
-          yoyo: true,
-          stagger: 0.15,
-          ease: "sine.inOut",
-        });
-
-        gsap.to(".space-device-halo", {
-          opacity: 0.75,
-          scale: 1.2,
-          duration: 1.8,
-          repeat: -1,
-          yoyo: true,
-          stagger: 0.2,
-          ease: "sine.inOut",
-        });
       });
 
       return () => mm.revert();
     },
-    { scope: sectionRef },
+    { scope: rootRef },
   );
-
-  /* ---------- Switching space ---------- */
-  useGSAP(
-    () => {
-      if (!hasMounted.current) {
-        hasMounted.current = true;
-        return;
-      }
-
-      if (!visualRef.current) return;
-
-      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-        gsap.set(".space-plan-content", { opacity: 1, scale: 1 });
-        return;
-      }
-
-      const timeline = gsap.timeline();
-
-      timeline
-        .fromTo(
-          ".space-plan-content",
-          { opacity: 0, scale: 0.975 },
-          { opacity: 1, scale: 1, duration: 0.5, ease: "power3.out" },
-        )
-        .fromTo(
-          ".space-connection",
-          { strokeDashoffset: 1 },
-          {
-            strokeDashoffset: 0,
-            duration: 0.65,
-            stagger: 0.1,
-            ease: "power2.inOut",
-          },
-          "-=0.35",
-        )
-        .from(
-          ".space-device",
-          {
-            scale: 0.6,
-            opacity: 0,
-            y: 10,
-            duration: 0.5,
-            stagger: 0.11,
-            ease: "back.out(1.7)",
-          },
-          "-=0.35",
-        );
-
-      return () => {
-        timeline.kill();
-      };
-    },
-    {
-      scope: visualRef,
-      dependencies: [activeSpace],
-      revertOnUpdate: true,
-    },
-  );
-
-  const changeSpace = (index: number) => {
-    if (index === activeSpace) return;
-
-    if (
-      !visualRef.current ||
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    ) {
-      setActiveSpace(index);
-      return;
-    }
-
-    gsap.killTweensOf(".space-plan-content");
-    gsap.to(".space-plan-content", {
-      opacity: 0,
-      scale: 0.975,
-      duration: 0.18,
-      ease: "power2.in",
-      onComplete: () => setActiveSpace(index),
-    });
-  };
 
   return (
     <section
-      ref={sectionRef}
+      ref={rootRef}
       id="solutions-by-space"
       aria-label="Solutions by space"
-      className="section space-sec relative overflow-x-clip"
+      className="section space-sec overflow-x-clip"
     >
       <style>{`
-        /* ----------------------------------------------------------
-           Compact spacing (matches Why choose us / Process)
-        ---------------------------------------------------------- */
-
-        .section.space-sec {
-          padding-top: 1.5rem;
-          padding-bottom: 2.5rem;
+        .space-sec {
+          --space-h2: #1ce8f0;
         }
 
-        @media (min-width: 640px) {
-          .section.space-sec {
-            padding-top: 2rem;
-            padding-bottom: 3rem;
+        .light .space-sec {
+          --space-h2: #07505a;
+        }
+
+        @keyframes space-spin {
+          to { transform: rotate(360deg); }
+        }
+
+        @keyframes space-scan-line {
+          0%, 100% { transform: translateY(-20px); }
+          50% { transform: translateY(42px); }
+        }
+
+        @keyframes space-blink {
+          50% { opacity: .2; }
+        }
+
+        @keyframes space-dash {
+          to { stroke-dashoffset: -20; }
+        }
+
+        @keyframes space-pulse {
+          0%, 100% {
+            opacity: .35;
+            transform: scale(.88);
+          }
+          50% {
+            opacity: 1;
+            transform: scale(1.08);
           }
         }
 
-        @media (min-width: 1024px) {
-          .section.space-sec {
-            padding-top: 2.5rem;
-            padding-bottom: 3.5rem;
+        @keyframes space-ripple {
+          0% {
+            transform: scale(.3);
+            opacity: .65;
+          }
+          100% {
+            transform: scale(1.35);
+            opacity: 0;
           }
         }
 
-        .space-sec .space-head,
-        .space-sec .space-head h2 {
-          margin-top: 0;
+        @keyframes space-float {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-5px); }
         }
 
-        /* ----------------------------------------------------------
-           Selector list
-        ---------------------------------------------------------- */
-
-        .space-selector {
-          transition: border-color 350ms ease, background-color 350ms ease;
+        @keyframes space-beam {
+          to { transform: rotate(360deg); }
         }
 
-        .space-icon {
+        .space-art * {
+          transform-box: fill-box;
+          transform-origin: center;
+        }
+
+        .space-spin {
+          animation: space-spin 16s linear infinite;
+        }
+
+        .space-scan-line {
+          animation: space-scan-line 3.5s ease-in-out infinite;
+        }
+
+        .space-blink {
+          animation: space-blink 1.4s steps(1) infinite;
+        }
+
+        .space-dash {
+          stroke-dasharray: 4 6;
+          animation: space-dash 1.5s linear infinite;
+        }
+
+        .space-pulse {
+          animation: space-pulse 2.6s ease-in-out infinite;
+        }
+
+        .space-ripple {
+          animation: space-ripple 2.8s ease-out infinite;
+        }
+
+        .space-art-wrap {
+          animation: space-float 5s ease-in-out infinite;
+        }
+
+        .space-card {
+          position: relative;
+          overflow: hidden;
+          padding: 1px;
+          border-radius: 0 28px 0 28px;
+          background: var(--edge);
+          isolation: isolate;
           transition:
             transform 400ms cubic-bezier(.16, 1, .3, 1),
-            border-color 350ms ease,
-            background-color 350ms ease,
-            color 350ms ease,
-            box-shadow 350ms ease;
+            box-shadow 400ms ease;
         }
 
-        .space-selector button:hover .space-icon {
-          transform: translateY(-2px);
+        .space-card::before {
+          content: "";
+          position: absolute;
+          inset: -50%;
+          z-index: 0;
+          background: conic-gradient(
+            from 0deg at 50% 50%,
+            transparent 0deg,
+            transparent 300deg,
+            var(--accent) 360deg
+          );
+          opacity: .7;
+          animation: space-beam 6s linear infinite;
         }
 
-        .space-arrow {
+        .space-card-inner {
+          position: relative;
+          z-index: 1;
+          height: 100%;
+          border-radius: inherit;
+          background: var(--bg);
+          transition: background-color 400ms ease;
+        }
+
+        .space-rule {
+          display: block;
+          width: 40px;
+          height: 1px;
+          background: linear-gradient(90deg, transparent, var(--accent), transparent);
+          opacity: 0.8;
+          transition: width 400ms cubic-bezier(.16, 1, .3, 1);
+        }
+
+        .space-dot {
+          flex-shrink: 0;
+          margin-top: 0.62em;
+          width: 5px;
+          height: 5px;
+          border-radius: 9999px;
+          background: var(--accent);
+          box-shadow: 0 0 8px color-mix(in srgb, var(--accent) 55%, transparent);
+        }
+
+        .space-link {
           transition:
-            transform 400ms cubic-bezier(.16, 1, .3, 1),
-            color 350ms ease;
-        }
-
-        .space-selector button:hover .space-arrow {
-          transform: translate(2px, -2px);
-        }
-
-        .space-chip {
-          background: var(--glass-bg);
-          border: 1px solid var(--glass-border);
-          color: var(--fg-muted);
-          transition:
-            color 300ms ease,
             border-color 300ms ease,
-            background-color 300ms ease;
+            background-color 300ms ease,
+            transform 300ms cubic-bezier(.16, 1, .3, 1);
+        }
+
+        .space-link svg {
+          transition: transform 300ms ease;
         }
 
         @media (hover: hover) {
-          .space-chip:hover {
-            color: var(--accent);
+          .space-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px -18px color-mix(in srgb, var(--accent) 35%, transparent);
+          }
+
+          .space-card:hover .space-card-inner {
+            background: var(--bg-alt);
+          }
+
+          .space-card:hover .space-rule {
+            width: 64px;
+          }
+
+          .space-link:hover {
             border-color: var(--accent);
-            background: var(--accent-soft);
+          }
+
+          .space-link:hover svg {
+            transform: translateX(3px);
           }
         }
 
-        /* ----------------------------------------------------------
-           Visual card (theme-aware)
-        ---------------------------------------------------------- */
-
-        .space-panel-card {
-          isolation: isolate;
-        }
-
-        .space-panel-card::before {
-          content: "";
-          position: absolute;
-          inset: 0;
-          z-index: 0;
-          pointer-events: none;
-          border-radius: inherit;
-          background: linear-gradient(
-            135deg,
-            color-mix(in srgb, var(--accent) 5%, transparent),
-            transparent 42%,
-            transparent 72%,
-            color-mix(in srgb, var(--accent) 3%, transparent)
-          );
-        }
-
-        .space-grid-bg {
-          background-image:
-            linear-gradient(color-mix(in srgb, var(--accent) 12%, transparent) 1px, transparent 1px),
-            linear-gradient(90deg, color-mix(in srgb, var(--accent) 12%, transparent) 1px, transparent 1px);
-          background-size: 32px 32px;
-          mask-image: radial-gradient(ellipse at center, #000 40%, transparent 90%);
-          -webkit-mask-image: radial-gradient(ellipse at center, #000 40%, transparent 90%);
-        }
-
-        .space-svg {
-          color: var(--accent);
-        }
-
-        .space-hub-core {
-          fill: var(--bg);
-        }
-
-        .space-device-box {
-          background: var(--bg);
-          border: 1px solid color-mix(in srgb, var(--accent) 50%, var(--edge));
-          color: var(--accent);
-          box-shadow: 0 0 18px color-mix(in srgb, var(--accent) 16%, transparent);
-        }
-
-        .space-device-halo {
-          border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
-        }
-
-        .space-device-dot {
-          background: var(--accent);
-          border: 1px solid var(--bg);
-        }
-
-        .space-device-label {
-          background: color-mix(in srgb, var(--bg) 90%, transparent);
-          border: 1px solid var(--edge);
-          color: var(--fg-muted);
-        }
-
-        .space-footer {
-          background: color-mix(in srgb, var(--bg) 88%, transparent);
-          border-top: 1px solid var(--edge);
-          backdrop-filter: blur(10px);
-          -webkit-backdrop-filter: blur(10px);
-        }
-
-        .space-live {
-          background: var(--accent-soft);
-          border: 1px solid var(--edge);
-        }
-
-        .space-scan {
-          background: linear-gradient(
-            90deg,
-            transparent,
-            color-mix(in srgb, var(--accent) 70%, transparent),
-            transparent
-          );
-        }
-
         @media (prefers-reduced-motion: reduce) {
-          .space-scan { display: none; }
+          .space-art *,
+          .space-art-wrap,
+          .space-card::before {
+            animation: none !important;
+          }
 
-          .space-selector,
-          .space-icon,
-          .space-arrow,
-          .space-chip {
+          .space-card,
+          .space-card-inner,
+          .space-link {
             transition-duration: .01ms !important;
           }
         }
       `}</style>
 
-      {/* Ambient theme-aware glow (same treatment as Services) */}
+      {/* Ambient theme-aware glow */}
       <div
         aria-hidden="true"
-        className="space-orb pointer-events-none absolute -left-40 top-0 size-[460px] rounded-full opacity-50 blur-3xl"
+        className="space-orb pointer-events-none absolute -right-40 top-0 size-[460px] rounded-full opacity-50 blur-3xl"
         style={{
           background:
             "radial-gradient(circle, color-mix(in srgb, var(--accent) 13%, transparent) 0%, transparent 68%)",
@@ -527,18 +550,19 @@ export default function SolutionsBySpace() {
       <div className="container-x relative">
         {/* Section heading */}
         <div className="section-head section-head--center space-head">
-          <h2
-            aria-label={HEADING}
-            className="t-h2 font-semibold"
-            style={{ color: "#1ce8f0" }}
-          >
+          <h2 className="t-h2 font-semibold" style={{ color: "var(--space-h2)" }}>
             {HEADING.split(" ").map((word, index) => (
               <span
                 key={word + index}
                 aria-hidden="true"
                 className="mr-[0.2em] inline-block overflow-hidden align-bottom"
               >
-                <span className="space-word inline-block">{word}</span>
+                <span className="space-word inline-block">
+                  {word}
+                  {index === 1 ? (
+                    <span className="text-accent"> </span>
+                  ) : null}
+                </span>
               </span>
             ))}
           </h2>
@@ -549,340 +573,52 @@ export default function SolutionsBySpace() {
           </p>
         </div>
 
-        {/* Two-column layout */}
-        <div className="relative grid items-start gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12">
-          {/* Space selector */}
-          <ul className="space-selector-list flex flex-col">
-            {SPACES.map((space, index) => {
-              const Icon = space.icon;
-              const selected = activeSpace === index;
-
-              return (
-                <li
-                  key={space.id}
-                  className={`space-selector relative border-b border-edge first:border-t ${
-                    selected ? "bg-accent-soft/40" : ""
-                  }`}
-                >
-                  <button
-                    type="button"
-                    aria-expanded={selected}
-                    aria-controls={`space-description-${space.id}`}
-                    onClick={() => changeSpace(index)}
-                    onMouseEnter={() => changeSpace(index)}
-                    onFocus={() => changeSpace(index)}
-                    className="group flex min-h-[76px] w-full cursor-pointer items-center gap-3 py-4 text-left sm:gap-4 lg:py-5"
-                  >
-                    <span
-                      className={`space-icon flex size-10 shrink-0 items-center justify-center rounded-full border sm:size-11 ${
-                        selected
-                          ? "border-accent bg-accent-soft text-accent shadow-[0_0_16px_color-mix(in_srgb,var(--accent)_12%,transparent)]"
-                          : "border-edge bg-bg-alt text-fg-muted group-hover:border-accent group-hover:text-accent"
-                      }`}
-                    >
-                      <Icon className="size-[18px]" aria-hidden="true" />
-                    </span>
-
-                    <div className="min-w-0 flex-1">
-                      <span
-                        className={`block font-display text-[15px] font-medium leading-snug transition-colors duration-300 sm:text-base ${
-                          selected ? "text-accent" : "text-fg"
-                        }`}
-                      >
-                        {space.name}
-                      </span>
-                      <span className="mt-0.5 block text-xs text-fg-muted">
-                        {space.subtitle}
-                      </span>
-                    </div>
-
-                    <ArrowUpRight
-                      aria-hidden="true"
-                      className={`space-arrow ml-auto size-[18px] shrink-0 ${
-                        selected ? "rotate-45 text-accent" : "text-fg-muted"
-                      }`}
-                    />
-                  </button>
-
-                  {/* Expandable description */}
-                  <div
-                    id={`space-description-${space.id}`}
-                    aria-hidden={!selected}
-                    className="grid"
-                    style={{
-                      gridTemplateRows: selected ? "1fr" : "0fr",
-                      transition:
-                        "grid-template-rows 500ms cubic-bezier(.16, 1, .3, 1)",
-                    }}
-                  >
-                    <div className="overflow-hidden">
-                      <div
-                        className="flex flex-col items-start gap-4 pb-5 pl-[52px] pr-3 sm:pl-[60px]"
-                        style={{
-                          opacity: selected ? 1 : 0,
-                          transform: selected
-                            ? "translateY(0)"
-                            : "translateY(6px)",
-                          transition:
-                            "opacity 350ms ease, transform 350ms ease",
-                        }}
-                      >
-                        <p className="max-w-[48ch] text-[13px] leading-[1.8] text-fg-muted sm:text-sm">
-                          {space.description}
-                        </p>
-
-                        <ul className="flex flex-wrap gap-2">
-                          {space.solutions.map((solution) => (
-                            <li
-                              key={solution}
-                              className="space-chip rounded-full px-3 py-1 text-[11px] leading-relaxed"
-                            >
-                              {solution}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-
-          {/* Visual card (desktop only, hidden on phone/tablet) */}
-          <div className="hidden h-fit self-start lg:sticky lg:top-24 lg:block">
-            <div
-              ref={visualRef}
-              className="space-panel-card glass relative h-[440px] overflow-hidden rounded-card border border-edge sm:h-[500px]"
-            >
-              {/* Top highlight */}
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-x-10 top-0 z-0 h-px"
-                style={{
-                  background:
-                    "linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent) 45%, transparent), transparent)",
-                }}
-              />
-
-              {/* Blueprint grid */}
-              <div
-                aria-hidden="true"
-                className="space-grid-bg pointer-events-none absolute inset-0 z-0 opacity-60"
-              />
-
-              {/* Header */}
-              <div className="absolute inset-x-5 top-5 z-20 flex items-start justify-between gap-3 sm:inset-x-6 sm:top-6">
-                <div className="min-w-0">
-                  <span className="block text-[11px] font-medium tracking-wide text-accent">
-                    Security environment
-                  </span>
-                  <h3 className="mt-0.5 truncate font-display text-base font-semibold text-fg sm:text-[17px]">
-                    {active.name} infrastructure
-                  </h3>
-                </div>
-
-                <div className="space-live flex shrink-0 items-center gap-2 rounded-full px-3 py-1">
-                  <span className="relative flex size-2">
-                    <span className="absolute h-full w-full animate-ping rounded-full bg-accent/60 motion-reduce:animate-none" />
-                    <span className="relative size-2 rounded-full bg-accent" />
-                  </span>
-                  <span className="text-[11px] font-medium text-accent">
-                    Live
-                  </span>
-                </div>
-              </div>
-
-              {/* Plan + devices */}
-              <div className="absolute inset-x-3 bottom-[64px] top-[76px] flex items-center justify-center sm:inset-x-4 sm:bottom-[72px] sm:top-[84px]">
+        {/* 3 cards per row grid */}
+        <div className="space-grid grid gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
+          {SPACES.map(({ id, title, points, Art }, index) => (
+            <div key={id} id={id} className="space-card">
+              <div className="space-card-inner flex h-full flex-col items-center p-6 sm:p-7">
                 <div
-                  key={active.id}
-                  className="space-plan relative aspect-[4/3] w-full max-w-[440px]"
+                  className="space-art-wrap mb-3 h-36 w-44 text-accent sm:h-40 sm:w-48"
+                  style={{ animationDelay: `${index * 0.4}s` }}
                 >
-                  <div className="space-plan-content absolute inset-0">
-                    <svg
-                      viewBox="0 0 600 330"
-                      className="space-svg absolute inset-0 h-full w-full overflow-visible"
-                      fill="none"
-                      preserveAspectRatio="none"
-                      aria-hidden="true"
-                    >
-                      <defs>
-                        <linearGradient
-                          id="spaceStroke"
-                          x1="0"
-                          y1="0"
-                          x2="600"
-                          y2="330"
-                          gradientUnits="userSpaceOnUse"
-                        >
-                          <stop stopColor="currentColor" stopOpacity=".75" />
-                          <stop
-                            offset="1"
-                            stopColor="currentColor"
-                            stopOpacity=".15"
-                          />
-                        </linearGradient>
-                        <radialGradient id="spaceHubGlow">
-                          <stop stopColor="currentColor" stopOpacity=".3" />
-                          <stop
-                            offset="1"
-                            stopColor="currentColor"
-                            stopOpacity="0"
-                          />
-                        </radialGradient>
-                      </defs>
-
-                      {/* Property boundary */}
-                      <path
-                        d="M65 65 L300 20 L535 65 L535 265 L300 310 L65 265 Z"
-                        stroke="url(#spaceStroke)"
-                        strokeWidth="1.5"
-                        strokeDasharray="5 6"
-                        opacity=".8"
-                      />
-
-                      {/* Building outline */}
-                      <path
-                        d="M115 90 L300 55 L485 90 L485 240 L300 278 L115 240 Z"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                        strokeOpacity=".5"
-                      />
-
-                      {/* Partitions */}
-                      <path
-                        d="M300 55 V278 M115 165 H485 M210 73 V259 M395 73 V259"
-                        stroke="currentColor"
-                        strokeWidth="1"
-                        strokeOpacity=".3"
-                        strokeDasharray="4 5"
-                      />
-
-                      {/* Device to hub connections */}
-                      {active.devices.map((device) => {
-                        const x = (device.x / 100) * 600;
-                        const y = (device.y / 100) * 330;
-
-                        return (
-                          <path
-                            key={device.label}
-                            className="space-connection"
-                            d={`M${x} ${y} L300 165`}
-                            pathLength="1"
-                            stroke="currentColor"
-                            strokeWidth="1.5"
-                            strokeOpacity=".5"
-                            strokeDasharray="1"
-                            strokeDashoffset="0"
-                          />
-                        );
-                      })}
-
-                      {/* Hub */}
-                      <circle cx="300" cy="165" r="52" fill="url(#spaceHubGlow)" />
-                      <circle
-                        cx="300"
-                        cy="165"
-                        r="26"
-                        stroke="currentColor"
-                        strokeOpacity=".65"
-                        strokeDasharray="3 5"
-                      />
-                      <circle
-                        className="space-hub-core"
-                        cx="300"
-                        cy="165"
-                        r="14"
-                        stroke="currentColor"
-                        strokeOpacity=".8"
-                      />
-                      <circle cx="300" cy="165" r="4.5" fill="currentColor" />
-                    </svg>
-
-                    {/* Device nodes */}
-                    {active.devices.map((device) => {
-                      const Icon = DEVICE_ICONS[device.type];
-
-                      return (
-                        <div
-                          key={device.label}
-                          className="space-device absolute z-10 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-1.5"
-                          style={{
-                            left: `${device.x}%`,
-                            top: `${device.y}%`,
-                          }}
-                        >
-                          <div className="space-device-box relative flex size-8 items-center justify-center rounded-xl sm:size-9">
-                            <span
-                              aria-hidden="true"
-                              className="space-device-halo pointer-events-none absolute -inset-1 rounded-xl opacity-40"
-                            />
-                            <Icon size={16} strokeWidth={1.8} aria-hidden="true" />
-                            <span
-                              aria-hidden="true"
-                              className="space-status-dot space-device-dot absolute -right-0.5 -top-0.5 size-2 rounded-full"
-                            />
-                          </div>
-
-                          <span className="space-device-label whitespace-nowrap rounded-md px-1.5 py-0.5 text-[10px] font-medium sm:px-2">
-                            {device.label}
-                          </span>
-                        </div>
-                      );
-                    })}
-
-                    {/* Hub label */}
-                    <div className="pointer-events-none absolute left-1/2 top-1/2 z-10 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center">
-                      <div className="relative flex size-9 items-center justify-center">
-                        <span
-                          aria-hidden="true"
-                          className="space-hub-pulse absolute inset-0 rounded-full border border-accent/60"
-                        />
-                        <ShieldCheck
-                          size={18}
-                          strokeWidth={1.8}
-                          className="text-accent"
-                          aria-hidden="true"
-                        />
-                      </div>
-                      <span className="mt-1 text-[10px] font-medium text-accent">
-                        Hub
-                      </span>
-                    </div>
-                  </div>
+                  <Art />
                 </div>
-              </div>
 
-              {/* Scan line */}
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-x-0 bottom-[64px] top-[76px] z-10 overflow-hidden sm:bottom-[72px] sm:top-[84px]"
-              >
-                <div className="space-scan absolute inset-x-0 top-0 h-px" />
-              </div>
+                <h3
+                  className="mb-3 text-center font-display text-[1.0625rem] font-semibold leading-snug tracking-tight sm:text-[1.125rem]"
+                  style={{ color: "var(--space-h2)" }}
+                >
+                  {title}
+                </h3>
 
-              {/* Footer */}
-              <div className="space-footer absolute inset-x-0 bottom-0 z-20 px-5 py-3 sm:px-6 sm:py-3.5">
-                <div className="flex items-center justify-between gap-3 text-xs">
-                  <div className="flex min-w-0 items-center gap-2 text-fg-muted">
-                    <Activity
-                      size={14}
-                      className="shrink-0 text-accent"
-                      aria-hidden="true"
-                    />
-                    <span className="truncate">
-                      {active.devices.length} devices online
-                    </span>
-                  </div>
-                  <div className="flex shrink-0 items-center gap-1.5 font-medium text-accent">
-                    <Wifi size={13} aria-hidden="true" />
-                    <span>Secure network</span>
-                  </div>
+                <span className="space-rule mb-4" aria-hidden="true" />
+
+                <ul className="w-full space-y-2.5 text-left">
+                  {points.map((point) => (
+                    <li
+                      key={point}
+                      className="flex items-start gap-2.5 text-[13px] leading-[1.6] text-fg-muted"
+                    >
+                      <span className="space-dot" aria-hidden="true" />
+                      <span>{point}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <div className="mt-auto w-full pt-6">
+                  <Link
+                    href={`/services#${id}`}
+                    aria-label={`Explore ${title}`}
+                    className="space-link flex min-h-10 w-full items-center justify-center gap-2 rounded-full border border-edge bg-accent-soft px-4 py-2.5 text-[12px] font-medium tracking-wide text-accent"
+                  >
+                    Explore
+                    <ArrowRight className="size-3.5" aria-hidden="true" />
+                  </Link>
                 </div>
               </div>
             </div>
-          </div>
+          ))}
         </div>
       </div>
     </section>
