@@ -1,7 +1,16 @@
 import Link from "next/link";
 import { ArrowRight, Mail, MapPin, Phone } from "lucide-react";
-import { COMPANY_LINKS, LEGAL_LINKS, SERVICES, SITE } from "@/lib/site";
+import { COMPANY_LINKS, LEGAL_LINKS, SITE } from "@/lib/site";
 import Logo from "./Logo";
+
+const SERVICES = [
+  { title: "CCTV Surveillance", href: "/services/cctv-surveillance" },
+  { title: "Home Automation", href: "/services/home-automation" },
+  { title: "Networking", href: "/services/networking" },
+  { title: "Fire Alarm Systems", href: "/services/fire-alarm-systems" },
+  { title: "Intercom Systems", href: "/services/intercom-systems" },
+  { title: "Sound Systems", href: "/services/sound-systems" },
+];
 
 const titleClass =
   "font-display text-[0.9375rem] font-semibold leading-none tracking-normal text-fg";
@@ -77,7 +86,7 @@ export default function Footer() {
               <p className={titleClass}>Services</p>
               <ul className="flex flex-col items-center md:items-start">
                 {SERVICES.map((service) => (
-                  <li key={service.slug}>
+                  <li key={service.href}>
                     <Link href={service.href} className={linkClass}>
                       {service.title}
                     </Link>
@@ -95,7 +104,10 @@ export default function Footer() {
               <ul className="flex flex-col items-center md:items-start">
                 {COMPANY_LINKS.map((link) => (
                   <li key={link.href}>
-                    <Link href={link.href} className={linkClass}>
+                    <Link
+                      href={link.href === "/about" ? "/about-us" : link.href === "/contact" ? "/contact-us" : link.href}
+                      className={linkClass}
+                    >
                       {link.label}
                     </Link>
                   </li>

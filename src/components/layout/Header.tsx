@@ -4,11 +4,20 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronDown, Menu, X } from "lucide-react";
-import { NAV_LINKS, SERVICES, SITE } from "@/lib/site";
+import { NAV_LINKS, SITE } from "@/lib/site";
 import Logo from "./Logo";
 import ThemeToggle from "./ThemeToggle";
 
 const CLOSE_DELAY = 140; // ms, prevents flicker when the cursor crosses gaps
+
+const SERVICES = [
+  { title: "CCTV Surveillance", href: "/services/cctv-surveillance", slug: "cctv-surveillance" },
+  { title: "Home Automation", href: "/services/home-automation", slug: "home-automation" },
+  { title: "Networking", href: "/services/networking", slug: "networking" },
+  { title: "Fire Alarm Systems", href: "/services/fire-alarm-systems", slug: "fire-alarm-systems" },
+  { title: "Intercom Systems", href: "/services/intercom-systems", slug: "intercom-systems" },
+  { title: "Sound Systems", href: "/services/sound-systems", slug: "sound-systems" },
+];
 
 export default function Header() {
   const pathname = usePathname();
@@ -18,7 +27,7 @@ export default function Header() {
   const [mobileServicesOpen, setMobileServicesOpen] = useState(false);
   const closeTimer = useRef<number | null>(null);
 
-  // Close menus on route change (state adjusted during render, not in an effect)
+  // Close menus on route change
   const [prevPathname, setPrevPathname] = useState(pathname);
   if (prevPathname !== pathname) {
     setPrevPathname(pathname);
@@ -40,7 +49,7 @@ export default function Header() {
     );
   }, []);
 
-  // Scroll state (also checked once on mount so a reload mid-page is correct)
+  // Scroll state
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
     const raf = window.requestAnimationFrame(onScroll);
@@ -69,7 +78,7 @@ export default function Header() {
     return () => window.removeEventListener("keydown", onKey);
   }, [mobileOpen]);
 
-  // Close the mobile menu (and release the scroll lock) when resizing to desktop
+  // Close mobile menu when resizing to desktop
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 1024px)");
     const onChange = (e: MediaQueryListEvent) => {
@@ -85,20 +94,23 @@ export default function Header() {
     };
   }, []);
 
-  const isActive = (href: string) =>
-    href === "/" ? pathname === "/" : pathname.startsWith(href);
+  const getMappedHref = (href: string) => {
+    if (href === "/about") return "/about-us";
+    if (href === "/contact") return "/contact-us";
+    return href;
+  };
 
-  // Compact nav link: smaller text, tighter vertical padding
+  const isActive = (href: string) => {
+    const mapped = getMappedHref(href);
+    return mapped === "/" ? pathname === "/" : pathname.startsWith(mapped);
+  };
+
   const linkBase =
     "relative inline-flex items-center gap-1 py-1.5 text-[0.875rem] font-medium tracking-[0.01em] transition-colors duration-300 after:absolute after:-bottom-0.5 after:left-0 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-accent after:transition-transform after:duration-300 hover:text-accent hover:after:scale-x-100";
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 w-full">
       <style>{`
-        /* ----------------------------------------------------------
-           Full-width bar: no side margin, no rounded corners
-        ---------------------------------------------------------- */
-
         .header-bar {
           width: 100%;
           max-width: none;
@@ -109,7 +121,6 @@ export default function Header() {
           border-top: 0 !important;
         }
 
-        /* Compact "Get a Quote" button inside the bar and mobile menu */
         .header-bar .btn,
         .header-mobile .btn {
           min-height: 0;
@@ -124,16 +135,11 @@ export default function Header() {
           font-size: 0.875rem;
         }
 
-        /* Light mode: solid bar with a soft edge and shadow */
         html.light .header-bar {
           background: rgba(255, 255, 255, 0.94);
           border-bottom: 1px solid rgba(7, 80, 90, 0.14) !important;
           box-shadow: 0 8px 24px -16px rgba(0, 8, 24, 0.25);
         }
-
-        /* ----------------------------------------------------------
-           Services dropdown card
-        ---------------------------------------------------------- */
 
         .header-dropdown {
           background: color-mix(in srgb, var(--bg) 94%, transparent);
@@ -157,10 +163,6 @@ export default function Header() {
           color: #07505a;
         }
 
-        /* ----------------------------------------------------------
-           Mobile menu panel
-        ---------------------------------------------------------- */
-
         .header-mobile {
           background: color-mix(in srgb, var(--bg) 96%, transparent);
         }
@@ -173,10 +175,6 @@ export default function Header() {
           color: #f0f0f0;
         }
 
-        /* ----------------------------------------------------------
-           Menu button (light mode)
-        ---------------------------------------------------------- */
-
         html.light .header-menu-btn {
           background: #ffffff;
           border-color: rgba(7, 80, 90, 0.22);
@@ -184,13 +182,12 @@ export default function Header() {
         }
       `}</style>
 
-      {/* ---------- Bar: logo left | nav center | actions right ---------- */}
+      {/* Bar: logo left | nav center | actions right */}
       <div
         className={`glass glass-bar header-bar relative z-50 w-full transition-[height] duration-500 ${
           scrolled ? "h-[3.75rem]" : "h-[4.25rem] md:h-[4.75rem]"
         }`}
       >
-        {/* Full width with side padding only (no max-width, no margin) */}
         <div className="grid h-full w-full grid-cols-[1fr_auto] items-center gap-3 px-4 sm:px-6 lg:grid-cols-[1fr_auto_1fr] lg:px-8">
           {/* Left: logo */}
           <Link
@@ -212,6 +209,7 @@ export default function Header() {
             className="hidden items-center justify-self-center gap-5 lg:flex xl:gap-7"
           >
             {NAV_LINKS.map((item) => {
+              const mappedHref = getMappedHref(item.href);
               const active = isActive(item.href);
 
               if ("children" in item) {
@@ -232,7 +230,7 @@ export default function Header() {
                     }}
                   >
                     <Link
-                      href={item.href}
+                      href={mappedHref}
                       aria-haspopup="true"
                       aria-expanded={dropdownOpen}
                       aria-current={active ? "page" : undefined}
@@ -251,7 +249,7 @@ export default function Header() {
                       />
                     </Link>
 
-                    {/* Dropdown: names only (pt-3 bridges the gap so hover never breaks) */}
+                    {/* Dropdown */}
                     <div
                       className={`absolute left-1/2 top-full w-[235px] -translate-x-1/2 pt-3 transition-[opacity,transform,visibility] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
                         dropdownOpen
@@ -280,7 +278,7 @@ export default function Header() {
               return (
                 <Link
                   key={item.href}
-                  href={item.href}
+                  href={mappedHref}
                   aria-current={active ? "page" : undefined}
                   className={`${linkBase} ${
                     active ? "text-accent after:scale-x-100" : "text-fg"
@@ -292,7 +290,7 @@ export default function Header() {
             })}
           </nav>
 
-          {/* Right: theme toggle + Get a Quote (+ menu button on mobile) */}
+          {/* Right: theme toggle + Get a Quote */}
           <div className="flex items-center gap-2 justify-self-end md:gap-3">
             <ThemeToggle />
             <div className="hidden sm:block">
@@ -318,7 +316,7 @@ export default function Header() {
         </div>
       </div>
 
-      {/* ---------- Mobile menu: flat list, services as a compact dropdown ---------- */}
+      {/* Mobile menu */}
       <div
         id="mobile-menu"
         data-lenis-prevent
@@ -329,6 +327,7 @@ export default function Header() {
         <nav aria-label="Mobile" className="w-full px-4 sm:px-6 lg:px-8">
           <ul className="flex flex-col divide-y divide-edge border-y border-edge">
             {NAV_LINKS.map((item) => {
+              const mappedHref = getMappedHref(item.href);
               if ("children" in item) {
                 return (
                   <li key={item.href}>
@@ -388,7 +387,7 @@ export default function Header() {
               return (
                 <li key={item.href}>
                   <Link
-                    href={item.href}
+                    href={mappedHref}
                     aria-current={isActive(item.href) ? "page" : undefined}
                     className={`block min-h-11 px-2 py-2.5 text-base font-semibold transition-colors duration-200 hover:text-accent active:bg-accent-soft ${
                       isActive(item.href) ? "text-accent" : "text-fg"
@@ -400,7 +399,7 @@ export default function Header() {
               );
             })}
           </ul>
-          <Link href="/quote" className="btn btn--primary mt-6 w-full">
+          <Link href="/contact-us" className="btn btn--primary mt-6 w-full">
             Get a Quote
           </Link>
         </nav>
