@@ -102,16 +102,28 @@ export default function Footer() {
             >
               <p className={titleClass}>Company</p>
               <ul className="flex flex-col items-center md:items-start">
-                {COMPANY_LINKS.map((link) => (
-                  <li key={link.href}>
-                    <Link
-                      href={link.href === "/about" ? "/about-us" : link.href === "/contact" ? "/contact-us" : link.href}
-                      className={linkClass}
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
+                {COMPANY_LINKS.map((link) => {
+                  const resolvedHref =
+                    link.href === "/about"
+                      ? "/about-us"
+                      : link.href === "/contact"
+                        ? "/contact-us"
+                        : link.href;
+
+                  return (
+                    <li key={resolvedHref}>
+                      <Link href={resolvedHref} className={linkClass}>
+                        {link.label}
+                      </Link>
+                    </li>
+                  );
+                })}
+                {/* Manually added Blog link */}
+                <li>
+                  <Link href="/blog" className={linkClass}>
+                    Blog
+                  </Link>
+                </li>
               </ul>
             </nav>
 

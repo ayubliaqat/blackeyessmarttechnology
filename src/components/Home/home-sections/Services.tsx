@@ -268,7 +268,7 @@ type Service = {
 
 const SERVICES: Service[] = [
   {
-    id: "cctv",
+    id: "cctv-surveillance",
     title: "CCTV & Access Control",
     points: ["IP cameras", "Remote viewing", "Access control"],
     Art: CctvArt,
@@ -286,13 +286,13 @@ const SERVICES: Service[] = [
     Art: NetworkArt,
   },
   {
-    id: "fire-alarm",
+    id: "fire-alarm-systems",
     title: "Fire Alarm",
     points: ["Detection", "Alarms", "Control panels"],
     Art: FireArt,
   },
   {
-    id: "intercom",
+    id: "intercom-systems",
     title: "Intercom",
     points: ["Video", "Audio", "Door entry"],
     Art: IntercomArt,
@@ -724,7 +724,7 @@ export default function Services() {
                 {/* Link pinned to the bottom so all cards line up */}
                 <div className="mt-auto w-full pt-6">
                   <Link
-                    href={`/services#${id}`}
+                    href={`/services/${id}`}
                     aria-label={`Explore ${title}`}
                     className="svc-link flex min-h-10 w-full items-center justify-center gap-2 rounded-full border border-edge bg-accent-soft px-4 py-2.5 text-[12px] font-medium tracking-wide text-accent"
                   >
