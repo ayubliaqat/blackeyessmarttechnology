@@ -9,6 +9,8 @@ import { Shield, MessageSquare, ArrowRight } from "lucide-react";
 import UniversalHero from "@/components/Universal/hero";
 import WhoWeAre from "@/components/About/WhoWeAre";
 import MissionVision from "@/components/About/MissionVision";
+import WhereWeServe from "@/components/About/WhereWeServe";
+import CallToAction from "@/components/About/CallToAction";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
@@ -37,9 +39,10 @@ export default function AboutPage() {
 
       {/* 2. Who We Are Section */}
       <WhoWeAre />
-
       {/* 3. Mission & Vision Section */}
       <MissionVision />
+      <WhereWeServe/>
+      <CallToAction />
     </main>
   );
 }

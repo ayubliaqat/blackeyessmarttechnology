@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
+  productionBrowserSourceMaps: false, // Disables source maps in production to hide source code in DevTools
   experimental: {
     agentFeedback: true,
   },

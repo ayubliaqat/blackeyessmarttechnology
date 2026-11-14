@@ -24,15 +24,15 @@ const point = (r: number, a: number) => ({
 const TICKS = Array.from({ length: 72 }, (_, i) => {
   const a = (i / 72) * Math.PI * 2;
   const long = i % 6 === 0;
-  const from = point(long ? 160 : 168, a);
+  const from = point(long ? 156 : 166, a);
   const to = point(176, a);
   return { x1: from.x, y1: from.y, x2: to.x, y2: to.y, long };
 });
 
 const FIBERS = Array.from({ length: 36 }, (_, i) => {
   const a = (i / 36) * Math.PI * 2;
-  const from = point(54, a);
-  const to = point(98, a);
+  const from = point(50, a);
+  const to = point(96, a);
   return { x1: from.x, y1: from.y, x2: to.x, y2: to.y };
 });
 
@@ -315,63 +315,17 @@ export default function WhoWeAre() {
         }
 
         @keyframes who-pulse-ring {
-          0%, 100% { opacity: .35; }
-          50% { opacity: .8; }
+          0%, 100% { opacity: .3; transform: scale(0.98); }
+          50% { opacity: .7; transform: scale(1.02); }
         }
 
         .eye-glow-ring {
-          animation: who-pulse-ring 4s ease-in-out infinite;
-        }
-
-        /* One thin line above each pillar */
-        .who-line {
-          background: linear-gradient(
-            90deg,
-            var(--accent),
-            var(--edge) 65%,
-            transparent
-          );
-          opacity: .75;
-          transition: opacity 300ms ease;
-        }
-
-        .who-pillar {
-          transition: transform 400ms cubic-bezier(.16, 1, .3, 1);
-        }
-
-        .who-pillar h3,
-        .who-pillar .who-num {
-          transition: color 300ms ease, text-shadow 300ms ease;
-        }
-
-        @media (hover: hover) {
-          .who-pillar:hover {
-            transform: translateY(-4px);
-          }
-
-          .who-pillar:hover .who-line {
-            opacity: 1;
-          }
-
-          .who-pillar:hover h3 {
-            color: var(--accent);
-          }
-
-          .who-pillar:hover .who-num {
-            text-shadow: 0 0 18px color-mix(in srgb, var(--accent) 55%, transparent);
-          }
+          animation: who-pulse-ring 5s ease-in-out infinite;
         }
 
         @media (prefers-reduced-motion: reduce) {
           .eye-glow-ring {
             animation: none;
-          }
-
-          .who-pillar,
-          .who-line,
-          .who-pillar h3,
-          .who-pillar .who-num {
-            transition-duration: .01ms !important;
           }
         }
       `}</style>
@@ -387,8 +341,8 @@ export default function WhoWeAre() {
       />
 
       <div className="container-x relative">
-        {/* ---------- Text left, eye right ---------- */}
-        <div className="who-grid mx-auto grid max-w-[1040px] items-center gap-10 lg:grid-cols-[340px_1fr] lg:gap-16">
+        {/* ---------- Text left, enhanced visual viewport right ---------- */}
+        <div className="who-grid mx-auto grid max-w-[1040px] items-center gap-10 lg:grid-cols-[360px_1fr] lg:gap-16">
           <div className="order-2 flex flex-col justify-center">
             <h2
               aria-label={HEADING}
@@ -427,186 +381,198 @@ export default function WhoWeAre() {
             </div>
           </div>
 
-          {/* Animated eye */}
-          <div className="who-eye-wrap relative order-1 mx-auto w-full max-w-[300px] sm:max-w-[330px] lg:mx-0 lg:max-w-none">
-            <div className="who-eye-float relative">
-            <div
-              aria-hidden="true"
-              className="eye-glow-ring pointer-events-none absolute inset-[12%] rounded-full blur-2xl"
-              style={{
-                background:
-                  "radial-gradient(circle, color-mix(in srgb, var(--accent) 32%, transparent) 0%, transparent 70%)",
-              }}
-            />
+          {/* Enhanced Animated Viewport Card */}
+          <div className="who-eye-wrap relative order-1 mx-auto w-full max-w-[320px] sm:max-w-[360px] lg:mx-0 lg:max-w-none">
+            <div className="who-eye-float relative rounded-[0_32px_0_32px] border border-edge bg-bg/60 p-6 shadow-2xl backdrop-blur-md">
+              <div
+                aria-hidden="true"
+                className="eye-glow-ring pointer-events-none absolute inset-[10%] rounded-full blur-3xl"
+                style={{
+                  background:
+                    "radial-gradient(circle, color-mix(in srgb, var(--accent) 35%, transparent) 0%, transparent 75%)",
+                }}
+              />
 
-            <svg
-              ref={eyeRef}
-              viewBox="0 0 400 400"
-              fill="none"
-              aria-hidden="true"
-              className="relative block h-auto w-full overflow-visible"
-            >
-              <defs>
-                <radialGradient id="whoIris" cx="50%" cy="50%" r="50%">
-                  <stop offset="35%" stopColor="var(--accent)" stopOpacity="0" />
-                  <stop offset="100%" stopColor="var(--accent)" stopOpacity="0.5" />
-                </radialGradient>
-                <linearGradient
-                  id="whoSweep"
-                  gradientUnits="userSpaceOnUse"
-                  x1="200"
-                  y1="200"
-                  x2="348"
-                  y2="200"
-                >
-                  <stop offset="0%" stopColor="var(--accent)" stopOpacity="0" />
-                  <stop offset="100%" stopColor="var(--accent)" stopOpacity="0.28" />
-                </linearGradient>
-                <filter id="whoBlur" x="-50%" y="-50%" width="200%" height="200%">
-                  <feGaussianBlur stdDeviation="4" />
-                </filter>
-              </defs>
-
-              {/* Viewfinder corners */}
-              <g stroke="var(--accent)" strokeWidth="2" strokeLinecap="round">
-                <path className="eye-draw" d="M28 78 V28 H78" />
-                <path className="eye-draw" d="M322 28 H372 V78" />
-                <path className="eye-draw" d="M372 322 V372 H322" />
-                <path className="eye-draw" d="M78 372 H28 V322" />
-              </g>
-
-              {/* REC dot */}
-              <circle className="eye-rec" cx="52" cy="52" r="4" fill="#ef6464" />
-
-              {/* HUD labels */}
-              <g
-                className="eye-hud"
-                fill="var(--accent)"
-                fontSize="11"
-                fontWeight="500"
-                letterSpacing="2"
-                style={{ fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" }}
+              <svg
+                ref={eyeRef}
+                viewBox="0 0 400 400"
+                fill="none"
+                aria-hidden="true"
+                className="relative block h-auto w-full overflow-visible"
               >
-                <text x="64" y="56">REC</text>
-                <text x="372" y="56" textAnchor="end">4K</text>
-                <text x="40" y="358">CAM 01</text>
-                <text x="372" y="358" textAnchor="end">24/7</text>
-              </g>
+                <defs>
+                  <radialGradient id="whoIris" cx="50%" cy="50%" r="50%">
+                    <stop offset="30%" stopColor="var(--accent)" stopOpacity="0.05" />
+                    <stop offset="100%" stopColor="var(--accent)" stopOpacity="0.55" />
+                  </radialGradient>
+                  <linearGradient
+                    id="whoSweep"
+                    gradientUnits="userSpaceOnUse"
+                    x1="200"
+                    y1="200"
+                    x2="348"
+                    y2="200"
+                  >
+                    <stop offset="0%" stopColor="var(--accent)" stopOpacity="0" />
+                    <stop offset="100%" stopColor="var(--accent)" stopOpacity="0.32" />
+                  </linearGradient>
+                  <filter id="whoBlur" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur stdDeviation="5" />
+                  </filter>
+                </defs>
 
-              {/* Outer dashed ring */}
-              <g className="eye-ring-outer">
+                {/* Viewfinder tech frame corners */}
+                <g stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" opacity="0.8">
+                  <path className="eye-draw" d="M24 64 V24 H64" />
+                  <path className="eye-draw" d="M336 24 H376 V64" />
+                  <path className="eye-draw" d="M376 336 V376 H336" />
+                  <path className="eye-draw" d="M64 376 H24 V336" />
+                </g>
+
+                {/* Center Targeting Crosshairs */}
+                <g stroke="var(--accent)" strokeWidth="1" strokeOpacity="0.25">
+                  <line x1="200" y1="24" x2="200" y2="70" strokeDasharray="3 3" />
+                  <line x1="200" y1="330" x2="200" y2="376" strokeDasharray="3 3" />
+                  <line x1="24" y1="200" x2="70" y2="200" strokeDasharray="3 3" />
+                  <line x1="330" y1="200" x2="376" y2="200" strokeDasharray="3 3" />
+                </g>
+
+                {/* REC active status dot */}
+                <circle className="eye-rec" cx="44" cy="44" r="4.5" fill="#ef6464" />
+
+                {/* Enhanced Command HUD labels */}
+                <g
+                  className="eye-hud"
+                  fill="var(--accent)"
+                  fontSize="10.5"
+                  fontWeight="600"
+                  letterSpacing="2.5"
+                  opacity="0.85"
+                  style={{ fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" }}
+                >
+                  <text x="56" y="48">REC ● LIVE</text>
+                  <text x="376" y="48" textAnchor="end">SYS.01 // 4K</text>
+                  <text x="36" y="362">LAT: 31.52° N</text>
+                  <text x="376" y="362" textAnchor="end">ENCRYPTED</text>
+                </g>
+
+                {/* Outer tech target ring */}
+                <g className="eye-ring-outer">
+                  <circle
+                    cx="200"
+                    cy="200"
+                    r="180"
+                    stroke="var(--accent)"
+                    strokeOpacity="0.35"
+                    strokeDasharray="4 12"
+                    strokeWidth="1.2"
+                  />
+                </g>
+
+                {/* Precision tick ring */}
+                <g className="eye-ticks" stroke="var(--accent)">
+                  {TICKS.map((t, i) => (
+                    <line
+                      key={i}
+                      x1={t.x1}
+                      y1={t.y1}
+                      x2={t.x2}
+                      y2={t.y2}
+                      strokeOpacity={t.long ? 0.75 : 0.3}
+                      strokeWidth={t.long ? 1.8 : 1}
+                    />
+                  ))}
+                </g>
+
+                {/* Mid engineering ring */}
                 <circle
+                  className="eye-draw"
                   cx="200"
                   cy="200"
-                  r="186"
+                  r="146"
                   stroke="var(--accent)"
-                  strokeOpacity="0.3"
-                  strokeDasharray="2 10"
+                  strokeOpacity="0.5"
+                  strokeWidth="1.5"
                 />
-              </g>
 
-              {/* Tick ring */}
-              <g className="eye-ticks" stroke="var(--accent)">
-                {TICKS.map((t, i) => (
-                  <line
-                    key={i}
-                    x1={t.x1}
-                    y1={t.y1}
-                    x2={t.x2}
-                    y2={t.y2}
-                    strokeOpacity={t.long ? 0.7 : 0.3}
-                    strokeWidth={t.long ? 1.6 : 1}
+                {/* Active radar scanning beam arc */}
+                <g className="eye-scan" stroke="var(--accent)" strokeLinecap="round">
+                  <path
+                    d="M200 200 L324.6 117.8 A146 146 0 0 1 324.6 282.2 Z"
+                    fill="url(#whoSweep)"
+                    stroke="none"
                   />
-                ))}
-              </g>
-
-              {/* Mid ring */}
-              <circle
-                className="eye-draw"
-                cx="200"
-                cy="200"
-                r="148"
-                stroke="var(--accent)"
-                strokeOpacity="0.45"
-                strokeWidth="1.2"
-              />
-
-              {/* Scanning arc */}
-              <g className="eye-scan" stroke="var(--accent)" strokeLinecap="round">
-                <path
-                  d="M200 200 L327.2 114 A148 148 0 0 1 327.2 286 Z"
-                  fill="url(#whoSweep)"
-                  stroke="none"
-                />
-                <path
-                  d="M327.2 114 A148 148 0 0 1 327.2 286"
-                  strokeWidth="6"
-                  strokeOpacity="0.35"
-                  filter="url(#whoBlur)"
-                />
-                <path
-                  d="M327.2 114 A148 148 0 0 1 327.2 286"
-                  strokeWidth="2"
-                  strokeOpacity="0.95"
-                />
-              </g>
-
-              {/* Iris */}
-              <circle
-                className="eye-draw"
-                cx="200"
-                cy="200"
-                r="102"
-                fill="url(#whoIris)"
-                stroke="var(--accent)"
-                strokeOpacity="0.7"
-                strokeWidth="1.5"
-              />
-              <g className="eye-fibers" stroke="var(--accent)">
-                {FIBERS.map((f, i) => (
-                  <line
-                    key={i}
-                    x1={f.x1}
-                    y1={f.y1}
-                    x2={f.x2}
-                    y2={f.y2}
-                    strokeOpacity="0.32"
-                    strokeWidth="1"
+                  <path
+                    d="M324.6 117.8 A146 146 0 0 1 324.6 282.2"
+                    strokeWidth="6"
+                    strokeOpacity="0.4"
+                    filter="url(#whoBlur)"
                   />
-                ))}
-              </g>
-              <circle
-                className="eye-draw"
-                cx="200"
-                cy="200"
-                r="58"
-                stroke="var(--accent)"
-                strokeOpacity="0.6"
-              />
-
-              {/* Pupil (follows the cursor) */}
-              <g ref={pupilRef} className="eye-pupil">
-                <g className="eye-pupil-scale">
-                  <circle
-                    cx="200"
-                    cy="200"
-                    r="44"
-                    fill="#000810"
-                    stroke="var(--accent)"
-                    strokeWidth="1.5"
+                  <path
+                    d="M324.6 117.8 A146 146 0 0 1 324.6 282.2"
+                    strokeWidth="2.2"
+                    strokeOpacity="0.95"
                   />
-                  <circle
-                    cx="200"
-                    cy="200"
-                    r="30"
-                    fill="var(--accent)"
-                    fillOpacity="0.1"
-                  />
-                  <circle cx="186" cy="185" r="7" fill="#ffffff" fillOpacity="0.85" />
-                  <circle cx="213" cy="214" r="3" fill="#ffffff" fillOpacity="0.5" />
                 </g>
-              </g>
-            </svg>
+
+                {/* Iris ring */}
+                <circle
+                  className="eye-draw"
+                  cx="200"
+                  cy="200"
+                  r="98"
+                  fill="url(#whoIris)"
+                  stroke="var(--accent)"
+                  strokeOpacity="0.75"
+                  strokeWidth="1.8"
+                />
+                <g className="eye-fibers" stroke="var(--accent)">
+                  {FIBERS.map((f, i) => (
+                    <line
+                      key={i}
+                      x1={f.x1}
+                      y1={f.y1}
+                      x2={f.x2}
+                      y2={f.y2}
+                      strokeOpacity="0.38"
+                      strokeWidth="1.1"
+                    />
+                  ))}
+                </g>
+                <circle
+                  className="eye-draw"
+                  cx="200"
+                  cy="200"
+                  r="56"
+                  stroke="var(--accent)"
+                  strokeOpacity="0.65"
+                  strokeWidth="1.2"
+                />
+
+                {/* Interactive cursor-tracking pupil */}
+                <g ref={pupilRef} className="eye-pupil">
+                  <g className="eye-pupil-scale">
+                    <circle
+                      cx="200"
+                      cy="200"
+                      r="42"
+                      fill="#02060a"
+                      stroke="var(--accent)"
+                      strokeWidth="2"
+                    />
+                    <circle
+                      cx="200"
+                      cy="200"
+                      r="28"
+                      fill="var(--accent)"
+                      fillOpacity="0.12"
+                    />
+                    {/* Glossy lens reflection flares */}
+                    <circle cx="185" cy="184" r="7.5" fill="#ffffff" fillOpacity="0.9" />
+                    <circle cx="214" cy="215" r="3.5" fill="#ffffff" fillOpacity="0.55" />
+                  </g>
+                </g>
+              </svg>
             </div>
           </div>
         </div>

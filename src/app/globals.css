@@ -192,6 +192,13 @@ body {
   line-height: var(--lh-body);
   /* clip (not hidden) so the body never becomes a scroll container and GSAP pin keeps working */
   overflow-x: clip;
+  /* Disable text selection and copying globally */
+body {
+  -webkit-user-select: none; /* Safari */
+  -moz-user-select: none;    /* Firefox */
+  -ms-user-select: none;     /* Internet Explorer/Edge */
+  user-select: none;         /* Standard syntax */
+}
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   transition:
