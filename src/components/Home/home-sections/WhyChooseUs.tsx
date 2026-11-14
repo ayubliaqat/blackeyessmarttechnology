@@ -52,7 +52,6 @@ const HEADING = "Why choose BlackEyes";
 
 /* ==========================================================================
    Why choose us section
-   Matches the Services section: same tokens, type scale and spacing.
    ========================================================================== */
 
 export default function WhyChooseUs() {
@@ -129,7 +128,7 @@ export default function WhyChooseUs() {
         }
 
         /* ----------------------------------------------------------
-           Compact top spacing (beats the global .section padding)
+           Compact top spacing
         ---------------------------------------------------------- */
 
         .section.why-sec {
@@ -153,18 +152,18 @@ export default function WhyChooseUs() {
 
         .why-sec .why-head {
           margin-top: 0;
-          margin-bottom: 24px;
+          margin-bottom: 2rem;
         }
 
         @media (min-width: 768px) {
           .why-sec .why-head {
-            margin-bottom: 32px;
+            margin-bottom: 2.25rem;
           }
         }
 
         @media (min-width: 1024px) {
           .why-sec .why-head {
-            margin-bottom: 40px;
+            margin-bottom: 2.5rem;
           }
         }
 
@@ -173,7 +172,7 @@ export default function WhyChooseUs() {
         }
 
         /* ----------------------------------------------------------
-           Cards (all colors come from theme tokens)
+           Cards
         ---------------------------------------------------------- */
 
         .why-card-wrapper {
@@ -223,7 +222,6 @@ export default function WhyChooseUs() {
             box-shadow 350ms ease;
         }
 
-        /* Thin accent rule under each heading */
         .why-rule {
           display: block;
           width: 40px;
@@ -233,7 +231,6 @@ export default function WhyChooseUs() {
           transition: width 400ms cubic-bezier(.16, 1, .3, 1);
         }
 
-        /* Bullet marker: small accent dot with a soft glow */
         .why-dot {
           flex-shrink: 0;
           margin-top: 0.62em;
@@ -277,7 +274,7 @@ export default function WhyChooseUs() {
         }
       `}</style>
 
-      {/* Ambient theme-aware glow (same treatment as Services) */}
+      {/* Ambient theme-aware glow */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute -left-40 top-0 size-[460px] rounded-full opacity-50 blur-3xl"
@@ -289,10 +286,10 @@ export default function WhyChooseUs() {
 
       <div className="container-x relative">
         {/* Section heading */}
-        <div className="section-head section-head--center why-head">
+        <div className="section-head section-head--center why-head mb-8 lg:mb-10">
           <h2
             aria-label={HEADING}
-            className="t-h2 font-semibold"
+            className="t-h2 text-3xl font-semibold leading-tight sm:text-4xl lg:text-[2.65rem]"
             style={{ color: "var(--why-h2)" }}
           >
             {HEADING.split(" ").map((word, index) => (
@@ -306,14 +303,14 @@ export default function WhyChooseUs() {
             ))}
           </h2>
 
-          <p className="why-head-p t-body max-w-[54ch] text-center">
+          <p className="why-head-p mt-2.5 max-w-[54ch] text-center text-[14px] leading-relaxed text-fg-muted">
             Built on technical precision, uncompromising reliability, and
             full-spectrum accountability.
           </p>
         </div>
 
         {/* Features grid */}
-        <div className="why-grid grid gap-8 sm:grid-cols-2 lg:grid-cols-4 lg:gap-12">
+        <div className="why-grid grid gap-8 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
           {FEATURES.map(({ icon: Icon, title, points }) => (
             <div key={title} className="why-card-wrapper">
               <div className="why-card-inner flex h-full flex-col items-center p-6 sm:p-7">
@@ -322,9 +319,9 @@ export default function WhyChooseUs() {
                   <Icon className="size-[18px]" aria-hidden="true" />
                 </div>
 
-                {/* Heading: refined size, two lines reserved on desktop so cards stay aligned */}
+                {/* Heading: balanced h3 size */}
                 <h3
-                  className="mb-3 flex items-center justify-center text-center font-display text-[1.0625rem] font-semibold leading-snug tracking-tight sm:text-[1.125rem] lg:min-h-[3rem]"
+                  className="mb-3 flex items-center justify-center text-center font-display text-[1rem] font-semibold leading-snug tracking-tight sm:text-[1.0625rem] lg:min-h-[3rem]"
                   style={{ color: "var(--why-h2)" }}
                 >
                   {title}
@@ -333,12 +330,12 @@ export default function WhyChooseUs() {
                 {/* Fine divider between heading and points */}
                 <span className="why-rule mb-4" aria-hidden="true" />
 
-                {/* Three equal bullet points */}
+                {/* Three equal bullet points at 12px */}
                 <ul className="w-full space-y-2.5 text-left">
                   {points.map((point) => (
                     <li
                       key={point}
-                      className="flex items-start gap-2.5 text-[13px] leading-[1.6] text-fg-muted"
+                      className="flex items-start gap-2.5 text-[12px] leading-[1.6] text-fg-muted"
                     >
                       <span className="why-dot" aria-hidden="true" />
                       <span>{point}</span>

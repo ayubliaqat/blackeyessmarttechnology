@@ -316,15 +316,15 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Mobile menu */}
+      {/* Mobile menu with improved top breathing room / spacing */}
       <div
         id="mobile-menu"
         data-lenis-prevent
-        className={`header-mobile fixed inset-0 z-40 overflow-y-auto overscroll-contain pb-8 pt-20 backdrop-blur-xl transition-[opacity,visibility] duration-300 lg:hidden ${
+        className={`header-mobile fixed inset-0 z-40 overflow-y-auto overscroll-contain pb-12 pt-24 sm:pt-32 backdrop-blur-xl transition-[opacity,visibility] duration-300 lg:hidden ${
           mobileOpen ? "visible opacity-100" : "invisible opacity-0"
         }`}
       >
-        <nav aria-label="Mobile" className="w-full px-4 sm:px-6 lg:px-8">
+        <nav aria-label="Mobile" className="w-full px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6">
           <ul className="flex flex-col divide-y divide-edge border-y border-edge">
             {NAV_LINKS.map((item) => {
               const mappedHref = getMappedHref(item.href);
@@ -335,7 +335,7 @@ export default function Header() {
                       type="button"
                       onClick={() => setMobileServicesOpen((v) => !v)}
                       aria-expanded={mobileServicesOpen}
-                      className={`flex min-h-11 w-full cursor-pointer items-center justify-between px-2 py-2.5 text-base font-semibold transition-colors duration-200 active:bg-accent-soft ${
+                      className={`flex min-h-12 w-full cursor-pointer items-center justify-between px-3 py-3 text-base font-semibold transition-colors duration-200 active:bg-accent-soft ${
                         mobileServicesOpen || isActive(item.href)
                           ? "text-accent"
                           : "text-fg"
@@ -357,7 +357,7 @@ export default function Header() {
                       }`}
                     >
                       <ul
-                        className={`ml-2 flex max-h-[50vh] flex-col overflow-y-auto overflow-x-hidden border-l border-edge ${
+                        className={`ml-2 flex max-h-[50vh] flex-col overflow-y-auto overflow-x-hidden border-l border-edge py-1 ${
                           mobileServicesOpen ? "visible" : "invisible"
                         }`}
                       >
@@ -389,7 +389,7 @@ export default function Header() {
                   <Link
                     href={mappedHref}
                     aria-current={isActive(item.href) ? "page" : undefined}
-                    className={`block min-h-11 px-2 py-2.5 text-base font-semibold transition-colors duration-200 hover:text-accent active:bg-accent-soft ${
+                    className={`block min-h-12 px-3 py-3 text-base font-semibold transition-colors duration-200 hover:text-accent active:bg-accent-soft ${
                       isActive(item.href) ? "text-accent" : "text-fg"
                     }`}
                   >
@@ -399,7 +399,7 @@ export default function Header() {
               );
             })}
           </ul>
-          <Link href="/contact-us" className="btn btn--primary mt-6 w-full">
+          <Link href="/contact-us" className="btn btn--primary mt-8 w-full shadow-md">
             Get a Quote
           </Link>
         </nav>

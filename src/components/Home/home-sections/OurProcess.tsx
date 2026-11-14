@@ -61,7 +61,6 @@ const HEADING = "Every step builds protection";
 
 /* ==========================================================================
    Process section
-   Same tokens, type scale and spacing as Services / Why choose us.
    ========================================================================== */
 
 export default function Process() {
@@ -80,29 +79,29 @@ export default function Process() {
         once: true,
       });
 
-      /* ---------- Heading (all screens) ---------- */
+      /* ---------- Heading (all screens) - Sped up ---------- */
       mm.add("(prefers-reduced-motion: no-preference)", () => {
         gsap.from(".process-word", {
           yPercent: 110,
           opacity: 0,
           rotateX: -25,
-          duration: 0.9,
+          duration: 0.55,
           ease: "power4.out",
-          stagger: 0.07,
+          stagger: 0.04,
           scrollTrigger: once(".process-head"),
         });
 
         gsap.from(".process-head-p", {
-          y: 18,
+          y: 14,
           opacity: 0,
-          duration: 0.8,
-          delay: 0.2,
+          duration: 0.5,
+          delay: 0.1,
           ease: "power3.out",
           scrollTrigger: once(".process-head"),
         });
       });
 
-      /* ---------- Desktop network tree ---------- */
+      /* ---------- Desktop network tree - Sped up ---------- */
       mm.add(
         "(min-width: 768px) and (prefers-reduced-motion: no-preference)",
         () => {
@@ -125,45 +124,45 @@ export default function Process() {
               scrollTrigger: once(".pr-desktop", "top 78%"),
             })
             .from(".pr-desktop .network-root", {
-              scale: 0.65,
+              scale: 0.75,
               opacity: 0,
-              duration: 0.8,
+              duration: 0.5,
               ease: "back.out(1.7)",
             })
             .to(
               branches,
               {
                 strokeDashoffset: 0,
-                duration: 1.3,
-                stagger: 0.12,
+                duration: 0.7,
+                stagger: 0.06,
                 ease: "power2.inOut",
               },
-              "-=0.15",
+              "-=0.1",
             )
             .from(
               ".pr-desktop .network-node",
               {
-                scale: 0.4,
+                scale: 0.5,
                 opacity: 0,
-                duration: 0.55,
-                stagger: 0.15,
+                duration: 0.35,
+                stagger: 0.08,
                 ease: "back.out(2)",
               },
-              "-=1",
+              "-=0.55",
             )
             .from(
               ".pr-desktop .network-text",
               {
-                y: 20,
+                y: 14,
                 opacity: 0,
-                duration: 0.7,
-                stagger: 0.14,
+                duration: 0.45,
+                stagger: 0.07,
                 ease: "power3.out",
               },
-              "-=0.6",
+              "-=0.35",
             );
 
-          // Particles travelling along each branch
+          // Particles travelling along each branch (faster travel)
           const particleTweens: gsap.core.Timeline[] = [];
 
           branches.forEach((path, index) => {
@@ -174,11 +173,11 @@ export default function Process() {
 
             const tl = gsap.timeline({
               repeat: -1,
-              repeatDelay: 0.7,
-              delay: 2 + index * 0.35,
+              repeatDelay: 0.4,
+              delay: 1 + index * 0.2,
             });
 
-            tl.to(particle, { opacity: 1, duration: 0.2 })
+            tl.to(particle, { opacity: 1, duration: 0.15 })
               .to(
                 particle,
                 {
@@ -187,12 +186,12 @@ export default function Process() {
                     align: path,
                     alignOrigin: [0.5, 0.5],
                   },
-                  duration: 2.6 + index * 0.25,
+                  duration: 1.6 + index * 0.15,
                   ease: "none",
                 },
                 "<",
               )
-              .to(particle, { opacity: 0, duration: 0.25 }, ">-0.25");
+              .to(particle, { opacity: 0, duration: 0.15 }, ">-0.15");
 
             particleTweens.push(tl);
           });
@@ -200,7 +199,7 @@ export default function Process() {
           gsap.to(".pr-desktop .network-root-glow", {
             opacity: 0.8,
             scale: 1.18,
-            duration: 2,
+            duration: 1.5,
             repeat: -1,
             yoyo: true,
             ease: "sine.inOut",
@@ -228,20 +227,20 @@ export default function Process() {
             const branch = branches[index];
 
             const activate = () => {
-              gsap.to(card, { y: -5, duration: 0.3, ease: "power2.out" });
+              gsap.to(card, { y: -5, duration: 0.25, ease: "power2.out" });
               if (node)
                 gsap.to(node, {
                   scale: 1.12,
-                  duration: 0.3,
+                  duration: 0.25,
                   ease: "back.out(2)",
                 });
-              if (branch) gsap.to(branch, { opacity: 1, duration: 0.25 });
+              if (branch) gsap.to(branch, { opacity: 1, duration: 0.2 });
             };
 
             const deactivate = () => {
-              gsap.to(card, { y: 0, duration: 0.3, ease: "power2.out" });
-              if (node) gsap.to(node, { scale: 1, duration: 0.3 });
-              if (branch) gsap.to(branch, { opacity: 0.45, duration: 0.3 });
+              gsap.to(card, { y: 0, duration: 0.25, ease: "power2.out" });
+              if (node) gsap.to(node, { scale: 1, duration: 0.25 });
+              if (branch) gsap.to(branch, { opacity: 0.45, duration: 0.25 });
             };
 
             card.addEventListener("mouseenter", activate);
@@ -264,7 +263,7 @@ export default function Process() {
         },
       );
 
-      /* ---------- Mobile timeline ---------- */
+      /* ---------- Mobile timeline - Sped up ---------- */
       mm.add(
         "(max-width: 767px) and (prefers-reduced-motion: no-preference)",
         () => {
@@ -277,7 +276,7 @@ export default function Process() {
             .timeline({ scrollTrigger: once(".pr-mobile", "top 85%") })
             .to(".pr-mobile .network-line", {
               scaleY: 1,
-              duration: 1.2,
+              duration: 0.7,
               ease: "power2.inOut",
             })
             .from(
@@ -285,29 +284,29 @@ export default function Process() {
               {
                 scale: 0.5,
                 opacity: 0,
-                duration: 0.5,
-                stagger: 0.14,
+                duration: 0.35,
+                stagger: 0.08,
                 ease: "back.out(2)",
               },
-              "-=1",
+              "-=0.5",
             )
             .from(
               ".pr-mobile .network-text",
               {
-                y: 18,
+                y: 12,
                 opacity: 0,
-                duration: 0.6,
-                stagger: 0.14,
+                duration: 0.4,
+                stagger: 0.08,
                 ease: "power3.out",
               },
-              "-=0.9",
+              "-=0.45",
             )
             .from(
               ".pr-mobile .network-root",
               {
-                y: 18,
+                y: 12,
                 opacity: 0,
-                duration: 0.6,
+                duration: 0.4,
                 ease: "power3.out",
               },
               "-=0.2",
@@ -341,7 +340,7 @@ export default function Process() {
         }
 
         /* ----------------------------------------------------------
-           Compact spacing (matches Why choose us)
+           Compact spacing
         ---------------------------------------------------------- */
 
         .section.process-sec {
@@ -369,7 +368,7 @@ export default function Process() {
         }
 
         /* ----------------------------------------------------------
-           Theme-aware network (light + dark)
+           Theme-aware network
         ---------------------------------------------------------- */
 
         .network-branch {
@@ -391,7 +390,7 @@ export default function Process() {
           border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--edge));
           color: var(--accent);
           box-shadow: 0 0 24px color-mix(in srgb, var(--accent) 12%, transparent);
-          transition: border-color 300ms ease, background-color 300ms ease;
+          transition: border-color 200ms ease, background-color 200ms ease;
         }
 
         .network-card:hover .network-node,
@@ -444,7 +443,7 @@ export default function Process() {
         }
 
         .network-card h3 {
-          transition: color 300ms ease;
+          transition: color 200ms ease;
         }
 
         .network-card:hover h3,
@@ -474,7 +473,7 @@ export default function Process() {
         }
       `}</style>
 
-      {/* Ambient theme-aware glow (same treatment as Services) */}
+      {/* Ambient theme-aware glow */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute left-1/2 top-[45%] size-[420px] -translate-x-1/2 rounded-full opacity-50 blur-3xl"
@@ -486,10 +485,10 @@ export default function Process() {
 
       <div className="container-x relative z-10">
         {/* Section heading */}
-        <div className="section-head section-head--center process-head">
+        <div className="section-head section-head--center process-head mb-8 lg:mb-10">
           <h2
             aria-label={HEADING}
-            className="t-h2 font-semibold"
+            className="t-h2 text-3xl font-semibold leading-tight sm:text-4xl lg:text-[2.65rem]"
             style={{ color: "var(--process-h2)" }}
           >
             {HEADING.split(" ").map((word, index) => (
@@ -503,7 +502,7 @@ export default function Process() {
             ))}
           </h2>
 
-          <p className="process-head-p t-body max-w-[54ch] text-center">
+          <p className="process-head-p mt-2.5 max-w-[54ch] text-center text-[12px] leading-relaxed text-fg-muted">
             From the first conversation to the final installation, every
             stage is connected by one goal: your security.
           </p>
@@ -586,13 +585,13 @@ export default function Process() {
                       </span>
 
                       <h3
-                        className="font-display text-[15px] font-medium leading-snug lg:text-base"
+                        className="font-display text-[1rem] font-semibold leading-snug tracking-tight sm:text-[1.0625rem]"
                         style={{ color: "var(--process-h2)" }}
                       >
                         {step.title}
                       </h3>
 
-                      <p className="mt-2 max-w-[225px] text-[13px] leading-[1.8] text-fg-muted lg:text-sm">
+                      <p className="mt-2 max-w-[225px] text-[12px] leading-[1.6] text-fg-muted">
                         {step.description}
                       </p>
                     </div>
@@ -651,13 +650,13 @@ export default function Process() {
                     </span>
 
                     <h3
-                      className="mt-1 font-display text-[15px] font-medium"
+                      className="mt-1 font-display text-[1rem] font-semibold leading-snug tracking-tight"
                       style={{ color: "var(--process-h2)" }}
                     >
                       {step.title}
                     </h3>
 
-                    <p className="mt-2 max-w-[34ch] text-[13px] leading-[1.8] text-fg-muted">
+                    <p className="mt-2 max-w-[34ch] text-[12px] leading-[1.6] text-fg-muted">
                       {step.description}
                     </p>
                   </div>

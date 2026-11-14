@@ -17,7 +17,7 @@ import {
   Camera,
   DoorOpen,
   Flame,
-  Network,
+  Router,
   SlidersHorizontal,
   Volume2,
 } from "lucide-react";
@@ -68,10 +68,93 @@ const HERO_VARS_LIGHT = {
   colorScheme: "light",
 } as CSSProperties;
 
+/* ------------------------------------------------------------------ */
+/*  Building geometry                                                  */
+/* ------------------------------------------------------------------ */
+
+/** Visible svg area. Width stays 760 (the size you liked); only the empty top/bottom is cropped. */
+const VB_X = 0;
+const VB_Y = 80;
+const VB_W = 760;
+const VB_H = 570;
+/** Building height multiplier (was 1.2). Raise or lower to taste. */
+const BUILD_SCALE = 1.45;
+const BUILD_SHIFT = -20;
+/** Angle that lays a device flat on a wall at the current height. */
+const WALL_SKEW = (Math.atan((80 * BUILD_SCALE) / 235) * 180) / Math.PI;
+
+type Side = "left" | "right";
+type Pt = [number, number];
+
+/** Point on a wall (building space). u: 0..1 along the wall, v: 0..1 top to bottom. */
+function wallPoint(side: Side, u: number, v: number): Pt {
+  const x = side === "left" ? 145 + 235 * u : 380 + 235 * u;
+  const top = side === "left" ? 140 + 80 * u : 220 - 80 * u;
+  return [x, top + 190 * v];
+}
+
+/** Building space to the final svg space (after the height stretch). */
+function toView([x, y]: Pt): Pt {
+  return [x, y * BUILD_SCALE + BUILD_SHIFT];
+}
+
+function pts(list: Pt[]) {
+  return list.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(" ");
+}
+
+/** Transform that places a device flat on a wall. */
+function onWall(side: Side, u: number, v: number) {
+  const [x, y] = toView(wallPoint(side, u, v));
+  const skew = side === "left" ? WALL_SKEW : -WALL_SKEW;
+  return `translate(${x.toFixed(1)} ${y.toFixed(1)}) skewY(${skew.toFixed(2)})`;
+}
+
+interface WindowSpec {
+  side: Side;
+  u0: number;
+  u1: number;
+  v0: number;
+  v1: number;
+  lit?: boolean;
+}
+
+const WINDOWS: WindowSpec[] = [
+  // left wall, upper floor
+  { side: "left", u0: 0.42, u1: 0.64, v0: 0.1, v1: 0.42, lit: true },
+  // left wall, ground floor
+  { side: "left", u0: 0.46, u1: 0.64, v0: 0.6, v1: 0.9 },
+  // right wall, upper floor
+  { side: "right", u0: 0.05, u1: 0.27, v0: 0.1, v1: 0.42 },
+  { side: "right", u0: 0.33, u1: 0.52, v0: 0.1, v1: 0.42, lit: true },
+  // right wall, ground floor
+  { side: "right", u0: 0.33, u1: 0.55, v0: 0.6, v1: 0.9 },
+];
+
+const GROUND_N: Pt = [380, 200];
+const GROUND_E: Pt = [660, 320];
+const GROUND_S: Pt = [380, 440];
+const GROUND_W: Pt = [100, 320];
+
+const lerpPt = (a: Pt, b: Pt, t: number): Pt => [
+  a[0] + (b[0] - a[0]) * t,
+  a[1] + (b[1] - a[1]) * t,
+];
+
+const GROUND_LINES = Array.from({ length: 7 }, (_, i) => {
+  const t = (i + 1) / 8;
+  return {
+    a1: lerpPt(GROUND_W, GROUND_N, t),
+    a2: lerpPt(GROUND_S, GROUND_E, t),
+    b1: lerpPt(GROUND_W, GROUND_S, t),
+    b2: lerpPt(GROUND_N, GROUND_E, t),
+  };
+});
+
 interface ServiceHotspot {
   id: number;
   label: string;
   detail: string;
+  /** Position in svg units (see VB_X / VB_Y / VB_W / VB_H) */
   x: number;
   y: number;
   alert?: boolean;
@@ -83,52 +166,56 @@ const SERVICE_HOTSPOTS: ServiceHotspot[] = [
     id: 1,
     label: "Intercom Systems",
     detail: "Automated Gate Barrier & HD Video Intercom",
-    x: 18,
-    y: 76,
+    x: 150,
+    y: 520,
     icon: DoorOpen,
   },
   {
     id: 2,
     label: "CCTV Surveillance",
     detail: "4K PTZ Cameras • Night Vision & AI Tracking",
-    x: 22,
-    y: 20,
+    x: 172,
+    y: 152,
     icon: Camera,
   },
   {
     id: 3,
     label: "Networking",
     detail: "High-Speed Structured Cabling & Routers",
-    x: 47,
-    y: 48,
-    icon: Network,
+    x: 338,
+    y: 282,
+    icon: Router,
   },
   {
     id: 4,
     label: "Home Automation",
     detail: "Smart Lighting, Climate & Access Hub",
-    x: 52,
-    y: 70,
+    x: 400,
+    y: 552,
     icon: SlidersHorizontal,
   },
   {
     id: 5,
     label: "Sound Systems",
     detail: "Multi-Zone Ceiling Speakers & Audio Zoning",
-    x: 74,
-    y: 26,
+    x: 562,
+    y: 228,
     icon: Volume2,
   },
   {
     id: 6,
     label: "Fire Alarm Systems",
     detail: "Addressable Smoke & Thermal Detectors",
-    x: 82,
-    y: 56,
+    x: 620,
+    y: 343,
     alert: true,
     icon: Flame,
   },
 ];
+
+/* ------------------------------------------------------------------ */
+/*  Hooks                                                              */
+/* ------------------------------------------------------------------ */
 
 function useMediaQuery(query: string) {
   const subscribe = useCallback(
@@ -162,7 +249,91 @@ function useIsLight() {
   return light;
 }
 
-function ParticleWaveBg({
+/* ------------------------------------------------------------------ */
+/*  Background: night / day city skyline with haze, stars and beacons  */
+/* ------------------------------------------------------------------ */
+
+function mulberry32(seed: number) {
+  let a = seed;
+  return () => {
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+const makeGrain = (c: 0 | 1) =>
+  `url("data:image/svg+xml,${encodeURIComponent(
+    `<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n' x='0' y='0' width='100%' height='100%'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 ${c} 0 0 0 0 ${c} 0 0 0 0 ${c} 0 0 0 0.6 0'/></filter><rect width='100%' height='100%' filter='url(#n)'/></svg>`,
+  )}")`;
+
+const GRAIN_DARK = makeGrain(1);
+const GRAIN_LIGHT = makeGrain(0);
+
+interface SkyLayer {
+  min: number;
+  max: number;
+  w: [number, number];
+  dark: string;
+  light: string;
+  lit: number;
+  alpha: number;
+  fog: number;
+  beacons: boolean;
+}
+
+const SKY_LAYERS: SkyLayer[] = [
+  {
+    min: 0.24,
+    max: 0.52,
+    w: [34, 80],
+    dark: "#04222f",
+    light: "#c6d9e1",
+    lit: 0.2,
+    alpha: 0.3,
+    fog: 0.6,
+    beacons: true,
+  },
+  {
+    min: 0.13,
+    max: 0.36,
+    w: [28, 72],
+    dark: "#031b27",
+    light: "#b2c9d4",
+    lit: 0.28,
+    alpha: 0.45,
+    fog: 0.38,
+    beacons: false,
+  },
+  {
+    min: 0.05,
+    max: 0.21,
+    w: [32, 92],
+    dark: "#020f18",
+    light: "#9bb7c5",
+    lit: 0.34,
+    alpha: 0.65,
+    fog: 0,
+    beacons: false,
+  },
+];
+
+interface Twinkle {
+  x: number;
+  y: number;
+  phase: number;
+  speed: number;
+  warm: boolean;
+}
+
+interface Beacon {
+  x: number;
+  y: number;
+  phase: number;
+}
+
+function SkylineBg({
   light,
   active,
   reduced,
@@ -179,28 +350,126 @@ function ParticleWaveBg({
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    let animationId = 0;
+    const scene = document.createElement("canvas");
+    const sctx = scene.getContext("2d");
+    if (!sctx) return;
+
+    let raf = 0;
     let width = 0;
     let height = 0;
     let dpr = 1;
+    let time = 0;
+    let twinkles: Twinkle[] = [];
+    let beacons: Beacon[] = [];
+    const rgb = light ? "7, 80, 90" : "28, 232, 240";
+
+    const buildScene = () => {
+      const rand = mulberry32(2026);
+      // keep towers in proportion on tall, narrow (phone) screens
+      const ref = Math.min(height, width * 0.9);
+      sctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      sctx.clearRect(0, 0, width, height);
+      twinkles = [];
+      beacons = [];
+
+      // horizon glow
+      const sky = sctx.createLinearGradient(0, height * 0.3, 0, height);
+      sky.addColorStop(0, `rgba(${rgb}, 0)`);
+      sky.addColorStop(1, `rgba(${rgb}, ${light ? 0.12 : 0.16})`);
+      sctx.fillStyle = sky;
+      sctx.fillRect(0, 0, width, height);
+
+      // stars
+      if (!light) {
+        for (let i = 0; i < 90; i++) {
+          const sx = rand() * width;
+          const sy = rand() * height * 0.55;
+          const a = 0.12 + rand() * 0.4;
+          const size = rand() < 0.1 ? 1.6 : 1;
+          sctx.fillStyle = `rgba(210, 240, 245, ${a.toFixed(2)})`;
+          sctx.fillRect(sx, sy, size, size);
+        }
+      }
+
+      for (const layer of SKY_LAYERS) {
+        let x = -12;
+        while (x < width + 12) {
+          const bw = layer.w[0] + rand() * (layer.w[1] - layer.w[0]);
+          const bh = ref * (layer.min + rand() * (layer.max - layer.min));
+          const by = height - bh;
+
+          sctx.fillStyle = light ? layer.light : layer.dark;
+          sctx.fillRect(x, by, bw, bh + 2);
+
+          // lit roof edge
+          sctx.fillStyle = `rgba(${rgb}, ${light ? 0.22 : 0.2})`;
+          sctx.fillRect(x, by, bw, 1);
+
+          // windows
+          for (let wy = by + 7; wy < height - 5; wy += 11) {
+            for (let wx = x + 5; wx < x + bw - 6; wx += 8) {
+              const r = rand();
+              const warm = rand() < 0.3;
+              if (r < layer.lit) {
+                const a = layer.alpha * (0.45 + rand() * 0.55);
+                sctx.fillStyle = light
+                  ? `rgba(255, 255, 255, ${(a * 0.9).toFixed(2)})`
+                  : warm
+                    ? `rgba(255, 214, 150, ${a.toFixed(2)})`
+                    : `rgba(190, 240, 246, ${a.toFixed(2)})`;
+                sctx.fillRect(wx, wy, 3, 5);
+              } else if (
+                r < layer.lit + 0.05 &&
+                layer.alpha > 0.4 &&
+                twinkles.length < 70
+              ) {
+                twinkles.push({
+                  x: wx,
+                  y: wy,
+                  phase: rand() * 6.28,
+                  speed: 0.8 + rand() * 1.4,
+                  warm,
+                });
+              }
+            }
+          }
+
+          if (layer.beacons && bh > ref * 0.4 && rand() < 0.5) {
+            beacons.push({ x: x + bw / 2, y: by - 3, phase: rand() * 6.28 });
+          }
+
+          x += bw + 1 + rand() * 4;
+        }
+
+        // atmospheric haze: far layers fade into the background
+        if (layer.fog > 0) {
+          const top = height - ref * layer.max;
+          const fc = light ? "244, 248, 250" : "0, 8, 16";
+          const fog = sctx.createLinearGradient(0, top, 0, height);
+          fog.addColorStop(0, `rgba(${fc}, 0)`);
+          fog.addColorStop(1, `rgba(${fc}, ${layer.fog})`);
+          sctx.fillStyle = fog;
+          sctx.fillRect(0, top, width, height - top);
+        }
+      }
+    };
 
     const resize = () => {
-      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      dpr = Math.min(window.devicePixelRatio || 1, 1.5);
       width = canvas.clientWidth;
       height = canvas.clientHeight;
       canvas.width = Math.floor(width * dpr);
       canvas.height = Math.floor(height * dpr);
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      scene.width = canvas.width;
+      scene.height = canvas.height;
+      buildScene();
     };
 
-    resize();
-    window.addEventListener("resize", resize);
-
-    let time = 0;
-
-    const render = () => {
+    const draw = () => {
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, width, height);
 
+      // soft light behind the building
       const glow = ctx.createRadialGradient(
         width * 0.72,
         height * 0.48,
@@ -219,81 +488,96 @@ function ParticleWaveBg({
       ctx.fillStyle = glow;
       ctx.fillRect(0, 0, width, height);
 
-      const cols = width < 768 ? 44 : 78;
-      const rows = 20;
-      const rgb = light ? "7, 80, 90" : "28, 232, 240";
+      ctx.drawImage(scene, 0, 0, width, height);
 
-      for (let r = 0; r < rows; r++) {
-        const rowRatio = r / (rows - 1);
-        ctx.beginPath();
-
-        for (let c = 0; c <= cols; c++) {
-          const colRatio = c / cols;
-          const x = colRatio * (width + 80) - 40;
-
-          const wave1 = Math.sin(colRatio * 5.2 + time + rowRatio * 2.4) * 34;
-          const wave2 =
-            Math.cos(colRatio * 3.1 - time * 0.7 + rowRatio * 1.8) * 22;
-          const perspectiveSpread = (rowRatio - 0.5) * (85 + colRatio * 75);
-          const y =
-            height * 0.54 +
-            perspectiveSpread +
-            wave1 * (0.4 + rowRatio * 0.7) +
-            wave2;
-
-          if (c === 0) ctx.moveTo(x, y);
-          else ctx.lineTo(x, y);
-
-          if (c % 2 === 0) {
-            const pulse =
-              0.5 + 0.5 * Math.sin(colRatio * 8 + time * 1.6 + r * 0.9);
-            const alpha = (light ? 0.16 : 0.22) + pulse * (light ? 0.25 : 0.45);
-            const radius = 0.9 + pulse * 1.15;
-
-            ctx.fillStyle = `rgba(${rgb}, ${alpha.toFixed(3)})`;
-            ctx.fillRect(
-              x - radius * 0.5,
-              y - radius * 0.5,
-              radius * 1.6,
-              radius * 1.6,
-            );
-          }
+      // windows switching on and off
+      for (const t of twinkles) {
+        const a = Math.sin(time * t.speed + t.phase);
+        if (a > 0.2) {
+          ctx.fillStyle = light
+            ? `rgba(255, 255, 255, ${(a * 0.5).toFixed(2)})`
+            : t.warm
+              ? `rgba(255, 214, 150, ${(a * 0.7).toFixed(2)})`
+              : `rgba(190, 240, 246, ${(a * 0.7).toFixed(2)})`;
+          ctx.fillRect(t.x, t.y, 3, 5);
         }
-
-        const lineAlpha =
-          (light ? 0.045 : 0.065) * (1 - Math.abs(rowRatio - 0.5));
-        ctx.strokeStyle = `rgba(${rgb}, ${lineAlpha.toFixed(3)})`;
-        ctx.lineWidth = 1;
-        ctx.stroke();
       }
 
-      if (!reduced && active) {
-        time += 0.012;
-        animationId = requestAnimationFrame(render);
+      // aircraft warning lights on the tallest towers
+      for (const b of beacons) {
+        const pulse = (Math.sin(time * 2.2 + b.phase) + 1) / 2;
+        ctx.fillStyle = `rgba(255, 70, 70, ${(0.08 * pulse).toFixed(3)})`;
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, 6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = `rgba(255, 70, 70, ${(0.25 + 0.6 * pulse).toFixed(2)})`;
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, 1.6, 0, Math.PI * 2);
+        ctx.fill();
       }
+
+      // slow security scan
+      const sx = (((time * 0.09) % 1.5) - 0.25) * width;
+      const sweep = ctx.createLinearGradient(sx - 140, 0, sx + 140, 0);
+      sweep.addColorStop(0, `rgba(${rgb}, 0)`);
+      sweep.addColorStop(0.5, `rgba(${rgb}, ${light ? 0.045 : 0.07})`);
+      sweep.addColorStop(1, `rgba(${rgb}, 0)`);
+      ctx.fillStyle = sweep;
+      ctx.fillRect(sx - 140, 0, 280, height);
     };
 
-    render();
+    // ~30fps is plenty for a slow background and keeps the page light
+    let last = 0;
+    const loop = (now: number) => {
+      raf = requestAnimationFrame(loop);
+      if (now - last < 33) return;
+      time += Math.min((now - last) / 1000, 0.1) * 0.72;
+      last = now;
+      draw();
+    };
+
+    const onResize = () => {
+      resize();
+      draw();
+    };
+
+    resize();
+    draw();
+    if (!reduced && active) raf = requestAnimationFrame(loop);
+    window.addEventListener("resize", onResize);
 
     return () => {
-      cancelAnimationFrame(animationId);
-      window.removeEventListener("resize", resize);
+      cancelAnimationFrame(raf);
+      window.removeEventListener("resize", onResize);
     };
   }, [light, active, reduced]);
 
   return (
-    <canvas
-      ref={canvasRef}
-      aria-hidden="true"
-      className="pointer-events-none absolute inset-0 h-full w-full"
-    />
+    <>
+      <canvas
+        ref={canvasRef}
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 h-full w-full"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
+        style={{
+          backgroundImage: light ? GRAIN_LIGHT : GRAIN_DARK,
+          backgroundSize: "180px 180px",
+          opacity: light ? 0.1 : 0.12,
+        }}
+      />
+    </>
   );
 }
 
+/* ------------------------------------------------------------------ */
+/*  Building pieces                                                    */
+/* ------------------------------------------------------------------ */
+
 /**
  * A device drawn around (0,0) and placed on the building with `transform`.
- * Change translate(x y) to move it, or add scale(s) to resize it.
- * skewY(22) lays it flat on the left wall, skewY(-22) on the right wall.
  * The selected service's device glows; the others are slightly dimmed.
  */
 function Device({
@@ -324,8 +608,127 @@ function Device({
   );
 }
 
+/** A glass window with frame, mullions, sill and a reflection streak. */
+function GlassWindow({ w, light }: { w: WindowSpec; light: boolean }) {
+  const { side, u0, u1, v0, v1, lit } = w;
+  const at = (a: number, b: number): Pt =>
+    wallPoint(side, u0 + (u1 - u0) * a, v0 + (v1 - v0) * b);
+
+  const frame = pts([
+    wallPoint(side, u0 - 0.012, v0 - 0.02),
+    wallPoint(side, u1 + 0.012, v0 - 0.02),
+    wallPoint(side, u1 + 0.012, v1 + 0.02),
+    wallPoint(side, u0 - 0.012, v1 + 0.02),
+  ]);
+  const glass = pts([at(0, 0), at(1, 0), at(1, 1), at(0, 1)]);
+  const streak = pts([at(0.22, 0), at(0.4, 0), at(0.2, 1), at(0.02, 1)]);
+  const sill = pts([
+    wallPoint(side, u0 - 0.02, v1 + 0.02),
+    wallPoint(side, u1 + 0.02, v1 + 0.02),
+    wallPoint(side, u1 + 0.02, v1 + 0.05),
+    wallPoint(side, u0 - 0.02, v1 + 0.05),
+  ]);
+  const [mvx1, mvy1] = at(0.5, 0);
+  const [mvx2, mvy2] = at(0.5, 1);
+  const [mhx1, mhy1] = at(0, 0.5);
+  const [mhx2, mhy2] = at(1, 0.5);
+
+  return (
+    <g>
+      <polygon
+        points={frame}
+        fill={light ? "#ffffff" : "#0b2b38"}
+        stroke="var(--accent)"
+        strokeOpacity="0.55"
+        strokeWidth="1"
+        vectorEffect="non-scaling-stroke"
+      />
+      <polygon points={glass} fill={light ? "#8fb4c1" : "#020c12"} />
+      <polygon points={glass} fill="url(#glass)" />
+      {lit && (
+        <polygon
+          points={glass}
+          fill="#ffd9a0"
+          fillOpacity={light ? 0.28 : 0.2}
+        />
+      )}
+      <polygon
+        points={streak}
+        fill="#ffffff"
+        fillOpacity={light ? 0.35 : 0.08}
+      />
+      <path
+        d={`M${mvx1} ${mvy1} L${mvx2} ${mvy2} M${mhx1} ${mhy1} L${mhx2} ${mhy2}`}
+        stroke={light ? "#ffffff" : "#0b2b38"}
+        strokeWidth="1.4"
+        vectorEffect="non-scaling-stroke"
+      />
+      <polygon
+        points={sill}
+        fill="var(--accent)"
+        fillOpacity="0.35"
+        stroke="var(--accent)"
+        strokeOpacity="0.5"
+        strokeWidth="0.8"
+        vectorEffect="non-scaling-stroke"
+      />
+    </g>
+  );
+}
+
+/** Small isometric block used for rooftop equipment. */
+function IsoBox({
+  cx,
+  cy,
+  s,
+  h,
+  top,
+  left,
+  right,
+}: {
+  cx: number;
+  cy: number;
+  s: number;
+  h: number;
+  top: string;
+  left: string;
+  right: string;
+}) {
+  const d = s * 0.4;
+  const stroke = {
+    stroke: "var(--accent)",
+    strokeOpacity: 0.4,
+    strokeWidth: 1,
+    vectorEffect: "non-scaling-stroke" as const,
+  };
+  return (
+    <g>
+      <polygon
+        points={`${cx - s},${cy} ${cx},${cy + d} ${cx},${cy + d + h} ${cx - s},${cy + h}`}
+        fill={left}
+        {...stroke}
+      />
+      <polygon
+        points={`${cx},${cy + d} ${cx + s},${cy} ${cx + s},${cy + h} ${cx},${cy + d + h}`}
+        fill={right}
+        {...stroke}
+      />
+      <polygon
+        points={`${cx - s},${cy} ${cx},${cy - d} ${cx + s},${cy} ${cx},${cy + d}`}
+        fill={top}
+        {...stroke}
+      />
+    </g>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Hero                                                               */
+/* ------------------------------------------------------------------ */
+
 export default function Hero() {
   const rootRef = useRef<HTMLElement>(null);
+  const floatRef = useRef<gsap.core.Tween | null>(null);
   const [inView, setInView] = useState(true);
   const [activeId, setActiveId] = useState<number>(2);
 
@@ -342,6 +745,10 @@ export default function Hero() {
     io.observe(el);
     return () => io.disconnect();
   }, []);
+
+  useEffect(() => {
+    floatRef.current?.paused(!inView);
+  }, [inView]);
 
   useGSAP(
     () => {
@@ -425,7 +832,7 @@ export default function Hero() {
         1.0,
       );
 
-      gsap.to(".hero-right-building", {
+      floatRef.current = gsap.to(".hero-right-building", {
         y: -6,
         duration: 3.2,
         repeat: -1,
@@ -440,14 +847,48 @@ export default function Hero() {
     ? "bg-gradient-to-t from-[#f4f8fa]/92 via-[#f4f8fa]/55 to-[#f4f8fa]/30 lg:bg-gradient-to-r lg:from-[#f4f8fa]/95 lg:via-[#f4f8fa]/65 lg:to-transparent"
     : "bg-gradient-to-t from-[#000810]/90 via-[#000810]/55 to-[#000810]/30 lg:bg-gradient-to-r lg:from-[#000810]/95 lg:via-[#000810]/60 lg:to-transparent";
 
+  // Surface colours for the building (dark = night, light = day)
+  const pal = light
+    ? {
+        wallL: "#eaf2f5",
+        wallR: "#d5e3e9",
+        roof: "#cfe0e7",
+        groundTop: "#e8f1f4",
+        groundBottom: "#d3e2e8",
+        slab: "#b5c9d1",
+        boxTop: "#e4eef2",
+        boxL: "#c3d4db",
+        boxR: "#aebfc7",
+        door: "#8fb4c1",
+        frame: "#ffffff",
+      }
+    : {
+        wallL: "#071b27",
+        wallR: "#04121b",
+        roof: "#0a2a37",
+        groundTop: "#082230",
+        groundBottom: "#04111a",
+        slab: "#0a2430",
+        boxTop: "#12384a",
+        boxL: "#0b2733",
+        boxR: "#071a24",
+        door: "#020c12",
+        frame: "#0b2b38",
+      };
+
+  const [camX, camY] = toView(wallPoint("left", 0.115, 0.08));
+  const current =
+    SERVICE_HOTSPOTS.find((n) => n.id === activeId) ?? SERVICE_HOTSPOTS[0];
+
   return (
     <section
       ref={rootRef}
       aria-label="BlackEyes Smart Technology"
-className="relative flex min-h-svh w-full items-center overflow-hidden bg-bg pb-4 pt-20 lg:pb-6 lg:pt-20"      style={light ? HERO_VARS_LIGHT : HERO_VARS_DARK}
+      className="relative flex min-h-svh w-full items-center overflow-hidden bg-bg pb-4 pt-24 sm:pt-20 lg:pb-6 lg:pt-20"
+      style={light ? HERO_VARS_LIGHT : HERO_VARS_DARK}
     >
-      <div className="hero-bg absolute inset-0 pointer-events-none">
-        <ParticleWaveBg light={light} active={inView} reduced={reduced} />
+      <div className="hero-bg pointer-events-none absolute inset-0">
+        <SkylineBg light={light} active={inView} reduced={reduced} />
       </div>
 
       <div
@@ -456,11 +897,12 @@ className="relative flex min-h-svh w-full items-center overflow-hidden bg-bg pb-
       />
 
       <div className="container-x relative z-10 w-full px-4 md:px-6 lg:px-8">
-        <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-12 lg:gap-8">
+        <div className="grid grid-cols-1 items-center gap-8 md:gap-10 lg:grid-cols-12 lg:gap-8">
           <div className="mx-auto flex max-w-xl flex-col items-center gap-4 text-center md:gap-6 lg:col-span-5 lg:mx-0 lg:max-w-none lg:items-start lg:text-left">
             <h1
-              className="hero-left-title text-5xl font-extrabold leading-[1.05] tracking-tight [perspective:600px] sm:text-6xl lg:text-[4.5rem] xl:text-[5.5rem]"
+              className="hero-left-title font-extrabold leading-[1.05] tracking-tight [perspective:600px]"
               style={{
+                fontSize: "var(--fs-hero)",
                 color: "var(--accent)",
                 textShadow: light
                   ? "none"
@@ -494,12 +936,15 @@ className="relative flex min-h-svh w-full items-center overflow-hidden bg-bg pb-
           </div>
 
           <div className="hero-right-building relative mx-auto w-full max-w-2xl lg:col-span-7 lg:max-w-none">
-            <div className="relative aspect-[19/15] w-full select-none">
+            <div
+              className="relative w-full select-none"
+              style={{ aspectRatio: `${VB_W} / ${VB_H}` }}
+            >
               <svg
-                viewBox="0 0 760 600"
+                viewBox={`${VB_X} ${VB_Y} ${VB_W} ${VB_H}`}
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-full w-full drop-shadow-[0_0_28px_rgba(28,232,240,0.14)]"
+                className="h-full w-full"
                 role="img"
                 aria-label="Modern double-story smart building with CCTV camera, video intercom, network rack, smart panel, ceiling speaker and fire alarm"
               >
@@ -541,6 +986,54 @@ className="relative flex min-h-svh w-full items-center overflow-hidden bg-bg pb-
                       stopColor="var(--accent)"
                       stopOpacity="0.01"
                     />
+                  </linearGradient>
+
+                  <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1">
+                    <stop
+                      offset="0%"
+                      stopColor={light ? "#ffffff" : "var(--accent)"}
+                      stopOpacity={light ? "0.6" : "0.34"}
+                    />
+                    <stop
+                      offset="100%"
+                      stopColor="var(--accent)"
+                      stopOpacity={light ? "0.12" : "0.04"}
+                    />
+                  </linearGradient>
+
+                  <linearGradient id="groundFill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor={pal.groundTop} />
+                    <stop offset="100%" stopColor={pal.groundBottom} />
+                  </linearGradient>
+                  <radialGradient
+                    id="groundGlow"
+                    cx="380"
+                    cy="320"
+                    r="300"
+                    gradientUnits="userSpaceOnUse"
+                  >
+                    <stop
+                      offset="0%"
+                      stopColor="var(--accent)"
+                      stopOpacity={light ? "0.1" : "0.16"}
+                    />
+                    <stop
+                      offset="100%"
+                      stopColor="var(--accent)"
+                      stopOpacity="0"
+                    />
+                  </radialGradient>
+                  <clipPath id="groundClip">
+                    <polygon points="380,200 660,320 380,440 100,320" />
+                  </clipPath>
+
+                  <linearGradient id="castShadow" x1="0" y1="0" x2="1" y2="0">
+                    <stop
+                      offset="0%"
+                      stopColor="#000"
+                      stopOpacity={light ? "0.22" : "0.55"}
+                    />
+                    <stop offset="100%" stopColor="#000" stopOpacity="0" />
                   </linearGradient>
 
                   <linearGradient
@@ -608,22 +1101,78 @@ className="relative flex min-h-svh w-full items-center overflow-hidden bg-bg pb-
                   </filter>
                 </defs>
 
-                {/* ---------- Building, stretched 1.2x taller ---------- */}
-                <g transform="scale(1 1.2)">
-                  <path
-                    d="M380 440 L100 320 L380 200 L660 320 Z"
+                {/* ---------- Building, stretched taller (BUILD_SCALE) ---------- */}
+                <g
+                  transform={`translate(0 ${BUILD_SHIFT}) scale(1 ${BUILD_SCALE})`}
+                >
+                  {/* Ground slab */}
+                  <polygon
+                    points="100,320 380,440 380,450 100,330"
+                    fill={pal.slab}
                     stroke="var(--accent)"
-                    strokeOpacity="0.18"
+                    strokeOpacity="0.3"
+                    strokeWidth="1"
+                    vectorEffect="non-scaling-stroke"
+                  />
+                  <polygon
+                    points="380,440 660,320 660,330 380,450"
+                    fill={pal.slab}
+                    stroke="var(--accent)"
+                    strokeOpacity="0.3"
+                    strokeWidth="1"
+                    vectorEffect="non-scaling-stroke"
+                  />
+                  <polygon
+                    points="380,200 660,320 380,440 100,320"
+                    fill="url(#groundFill)"
+                  />
+                  <polygon
+                    points="380,200 660,320 380,440 100,320"
+                    fill="url(#groundGlow)"
+                  />
+                  {GROUND_LINES.map((l, i) => (
+                    <path
+                      key={i}
+                      d={`M${l.a1[0]} ${l.a1[1]} L${l.a2[0]} ${l.a2[1]} M${l.b1[0]} ${l.b1[1]} L${l.b2[0]} ${l.b2[1]}`}
+                      stroke="var(--accent)"
+                      strokeOpacity={light ? "0.1" : "0.09"}
+                      strokeWidth="1"
+                      vectorEffect="non-scaling-stroke"
+                    />
+                  ))}
+                  <polygon
+                    points="380,200 660,320 380,440 100,320"
+                    stroke="var(--accent)"
+                    strokeOpacity="0.28"
                     strokeWidth="1"
                     strokeDasharray="4 4"
+                    vectorEffect="non-scaling-stroke"
                   />
 
+                  {/* Cast shadow, falls to the right */}
+                  <g clipPath="url(#groundClip)">
+                    <polygon
+                      points="380,410 615,330 700,368 470,452"
+                      fill="url(#castShadow)"
+                    />
+                  </g>
+
+                  {/* Wall bodies */}
+                  <polygon
+                    points="145,140 380,220 380,410 145,330"
+                    fill={pal.wallL}
+                  />
+                  <polygon
+                    points="380,220 615,140 615,330 380,410"
+                    fill={pal.wallR}
+                  />
                   <polygon
                     points="145,140 380,220 380,410 145,330"
                     fill="url(#isoWallLeft)"
                     stroke="var(--accent)"
                     strokeOpacity="0.5"
                     strokeWidth="1.5"
+                    vectorEffect="non-scaling-stroke"
                   />
                   <polygon
                     points="380,220 615,140 615,330 380,410"
@@ -631,57 +1180,222 @@ className="relative flex min-h-svh w-full items-center overflow-hidden bg-bg pb-
                     stroke="var(--accent)"
                     strokeOpacity="0.4"
                     strokeWidth="1.5"
+                    vectorEffect="non-scaling-stroke"
                   />
 
-                  <polyline
-                    points="145,235 380,315 615,235"
+                  {/* Cladding panel joints */}
+                  {([1, 2, 3, 4, 5, 6] as const).map((n) => {
+                    const u = n / 7;
+                    const [lx1, ly1] = wallPoint("left", u, 0);
+                    const [lx2, ly2] = wallPoint("left", u, 1);
+                    const [rx1, ry1] = wallPoint("right", u, 0);
+                    const [rx2, ry2] = wallPoint("right", u, 1);
+                    return (
+                      <path
+                        key={n}
+                        d={`M${lx1} ${ly1} L${lx2} ${ly2} M${rx1} ${ry1} L${rx2} ${ry2}`}
+                        stroke="var(--accent)"
+                        strokeOpacity={light ? "0.1" : "0.08"}
+                        strokeWidth="1"
+                        vectorEffect="non-scaling-stroke"
+                      />
+                    );
+                  })}
+
+                  {/* Floor slab band between the two storeys */}
+                  <polygon
+                    points={pts([
+                      wallPoint("left", 0, 0.5),
+                      wallPoint("left", 1, 0.5),
+                      wallPoint("left", 1, 0.53),
+                      wallPoint("left", 0, 0.53),
+                    ])}
+                    fill="var(--accent)"
+                    fillOpacity="0.2"
                     stroke="var(--accent)"
                     strokeOpacity="0.5"
-                    strokeWidth="1.5"
+                    strokeWidth="1"
+                    vectorEffect="non-scaling-stroke"
+                  />
+                  <polygon
+                    points={pts([
+                      wallPoint("right", 0, 0.5),
+                      wallPoint("right", 1, 0.5),
+                      wallPoint("right", 1, 0.53),
+                      wallPoint("right", 0, 0.53),
+                    ])}
+                    fill="var(--accent)"
+                    fillOpacity="0.16"
+                    stroke="var(--accent)"
+                    strokeOpacity="0.45"
+                    strokeWidth="1"
+                    vectorEffect="non-scaling-stroke"
                   />
 
+                  {/* Base plinth */}
                   <polygon
-                    points="200,160 280,185 280,250 200,225"
+                    points="145,330 380,410 380,418 145,338"
                     fill="var(--accent)"
-                    fillOpacity="0.06"
+                    fillOpacity="0.18"
                     stroke="var(--accent)"
-                    strokeOpacity="0.3"
+                    strokeOpacity="0.4"
                     strokeWidth="1"
+                    vectorEffect="non-scaling-stroke"
                   />
                   <polygon
-                    points="460,185 540,160 540,225 460,250"
+                    points="380,410 615,330 615,338 380,418"
                     fill="var(--accent)"
-                    fillOpacity="0.08"
+                    fillOpacity="0.14"
                     stroke="var(--accent)"
                     strokeOpacity="0.35"
                     strokeWidth="1"
+                    vectorEffect="non-scaling-stroke"
                   />
+
+                  {/* Windows */}
+                  {WINDOWS.map((w, i) => (
+                    <GlassWindow key={i} w={w} light={light} />
+                  ))}
+
+                  {/* Entrance: glass door, canopy and step (intercom sits beside it) */}
                   <polygon
-                    points="250,270 330,295 330,360 250,335"
-                    fill="var(--accent)"
-                    fillOpacity="0.05"
+                    points="160,333.1 215,353.9 215,358.5 160,337.7"
+                    fill={pal.slab}
                     stroke="var(--accent)"
-                    strokeOpacity="0.25"
+                    strokeOpacity="0.45"
                     strokeWidth="1"
+                    vectorEffect="non-scaling-stroke"
                   />
-
                   <polygon
-                    points="380,85 615,140 380,220 145,140"
-                    fill="var(--accent)"
-                    fillOpacity={light ? "0.08" : "0.06"}
+                    points="165,335 210,352 210,300 165,283"
+                    fill={pal.door}
                     stroke="var(--accent)"
-                    strokeOpacity="0.6"
-                    strokeWidth="1.5"
+                    strokeOpacity="0.8"
+                    strokeWidth="1.3"
+                    vectorEffect="non-scaling-stroke"
                   />
-
-                  {/* Door (intercom sits beside it) */}
+                  <polygon
+                    points="165,335 210,352 210,300 165,283"
+                    fill="url(#glass)"
+                  />
                   <polygon
                     points="165,335 210,352 210,300 165,283"
                     fill="var(--accent)"
                     fillOpacity={activeId === 1 ? "0.3" : "0.1"}
+                  />
+                  <path
+                    d="M187.5 291.5 V343.5"
+                    stroke={pal.frame}
+                    strokeWidth="1.6"
+                    vectorEffect="non-scaling-stroke"
+                  />
+                  <path
+                    d="M183 318 V330 M192 321 V333"
+                    stroke="#d9f7f8"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                    vectorEffect="non-scaling-stroke"
+                  />
+                  <polygon
+                    points="160,278 215,298.8 215,304 160,283.2"
+                    fill={pal.frame}
                     stroke="var(--accent)"
-                    strokeOpacity="0.7"
-                    strokeWidth="1.3"
+                    strokeOpacity="0.6"
+                    strokeWidth="1"
+                    vectorEffect="non-scaling-stroke"
+                  />
+
+                  {/* Lit corner edge */}
+                  <path
+                    d="M380 220 V410"
+                    stroke="#ffffff"
+                    strokeOpacity={light ? "0.9" : "0.28"}
+                    strokeWidth="1.5"
+                    vectorEffect="non-scaling-stroke"
+                  />
+
+                  {/* Parapet / cornice */}
+                  <polygon
+                    points="145,140 380,220 380,230 145,150"
+                    fill="var(--accent)"
+                    fillOpacity="0.14"
+                    stroke="var(--accent)"
+                    strokeOpacity="0.55"
+                    strokeWidth="1"
+                    vectorEffect="non-scaling-stroke"
+                  />
+                  <polygon
+                    points="380,220 615,140 615,150 380,230"
+                    fill="var(--accent)"
+                    fillOpacity="0.1"
+                    stroke="var(--accent)"
+                    strokeOpacity="0.5"
+                    strokeWidth="1"
+                    vectorEffect="non-scaling-stroke"
+                  />
+
+                  {/* Roof */}
+                  <polygon
+                    points="380,85 615,140 380,220 145,140"
+                    fill={pal.roof}
+                    stroke="var(--accent)"
+                    strokeOpacity="0.6"
+                    strokeWidth="1.5"
+                    vectorEffect="non-scaling-stroke"
+                  />
+                  <polygon
+                    points="380,85 615,140 380,220 145,140"
+                    fill="var(--accent)"
+                    fillOpacity={light ? "0.08" : "0.06"}
+                  />
+                  <polygon
+                    points="380,100 575,150 380,208 185,150"
+                    stroke="var(--accent)"
+                    strokeOpacity="0.25"
+                    strokeWidth="1"
+                    vectorEffect="non-scaling-stroke"
+                  />
+
+                  {/* Rooftop equipment */}
+                  <IsoBox
+                    cx={320}
+                    cy={152}
+                    s={22}
+                    h={10}
+                    top={pal.boxTop}
+                    left={pal.boxL}
+                    right={pal.boxR}
+                  />
+                  <IsoBox
+                    cx={440}
+                    cy={140}
+                    s={16}
+                    h={8}
+                    top={pal.boxTop}
+                    left={pal.boxL}
+                    right={pal.boxR}
+                  />
+                  <IsoBox
+                    cx={395}
+                    cy={176}
+                    s={10}
+                    h={6}
+                    top={pal.boxTop}
+                    left={pal.boxL}
+                    right={pal.boxR}
+                  />
+                  <path
+                    d="M500 134 V96 M494 108 H506"
+                    stroke="#aab6c0"
+                    strokeWidth="1.4"
+                    vectorEffect="non-scaling-stroke"
+                  />
+                  <circle
+                    cx="500"
+                    cy="94"
+                    r="2.2"
+                    fill="#ff4a4a"
+                    className="animate-pulse motion-reduce:animate-none"
                   />
                 </g>
 
@@ -691,7 +1405,7 @@ className="relative flex min-h-svh w-full items-center overflow-hidden bg-bg pb-
                 <Device
                   id={2}
                   activeId={activeId}
-                  transform="translate(172 180)"
+                  transform={`translate(${camX.toFixed(1)} ${camY.toFixed(1)})`}
                 >
                   <path d="M16 6 L62 28 L40 66 Z" fill="url(#cameraCone)" />
                   <g transform="rotate(28)">
@@ -779,7 +1493,7 @@ className="relative flex min-h-svh w-full items-center overflow-hidden bg-bg pb-
                 <Device
                   id={1}
                   activeId={activeId}
-                  transform="translate(228 386) skewY(22)"
+                  transform={onWall("left", 0.36, 0.8)}
                 >
                   <rect
                     x="-11"
@@ -849,11 +1563,11 @@ className="relative flex min-h-svh w-full items-center overflow-hidden bg-bg pb-
                   />
                 </Device>
 
-                {/* 3. Network rack + router: centre seam, just below its label */}
+                {/* 3. Network rack + router: left wall, upper floor, under its label */}
                 <Device
                   id={3}
                   activeId={activeId}
-                  transform="translate(345 355) skewY(22)"
+                  transform={onWall("left", 0.83, 0.26)}
                 >
                   <rect
                     x="-14"
@@ -940,11 +1654,11 @@ className="relative flex min-h-svh w-full items-center overflow-hidden bg-bg pb-
                   })}
                 </Device>
 
-                {/* 4. Smart touch panel: right wall, just above its label */}
+                {/* 4. Smart touch panel: right wall, above its label */}
                 <Device
                   id={4}
                   activeId={activeId}
-                  transform="translate(420 348) skewY(-22)"
+                  transform={onWall("right", 0.17, 0.75)}
                 >
                   <rect
                     x="-13"
@@ -1021,11 +1735,11 @@ className="relative flex min-h-svh w-full items-center overflow-hidden bg-bg pb-
                   <circle cx="0" cy="20" r="2.5" fill="var(--accent)" />
                 </Device>
 
-                {/* 5. Speaker: upper right wall, just under its label */}
+                {/* 5. Speaker: upper right wall, under its label */}
                 <Device
                   id={5}
                   activeId={activeId}
-                  transform="translate(548 228) skewY(-22)"
+                  transform={onWall("right", 0.715, 0.25)}
                 >
                   <circle
                     cx="3"
@@ -1101,7 +1815,7 @@ className="relative flex min-h-svh w-full items-center overflow-hidden bg-bg pb-
                   id={6}
                   activeId={activeId}
                   glow="#f59e0b"
-                  transform="translate(596 380) skewY(-22)"
+                  transform={onWall("right", 0.92, 0.75)}
                 >
                   <rect
                     x="-11"
@@ -1158,7 +1872,7 @@ className="relative flex min-h-svh w-full items-center overflow-hidden bg-bg pb-
                   id={6}
                   activeId={activeId}
                   glow="#f59e0b"
-                  transform="translate(548 396) skewY(-22)"
+                  transform={onWall("right", 0.715, 0.75)}
                 >
                   <circle
                     cx="2"
@@ -1200,7 +1914,10 @@ className="relative flex min-h-svh w-full items-center overflow-hidden bg-bg pb-
                 return (
                   <div
                     key={node.id}
-                    style={{ left: `${node.x}%`, top: `${node.y}%` }}
+                    style={{
+                      left: `${((node.x - VB_X) / VB_W) * 100}%`,
+                      top: `${((node.y - VB_Y) / VB_H) * 100}%`,
+                    }}
                     className="service-pin absolute z-20 -translate-x-1/2 -translate-y-1/2"
                   >
                     <button
@@ -1210,7 +1927,7 @@ className="relative flex min-h-svh w-full items-center overflow-hidden bg-bg pb-
                       onFocus={() => setActiveId(node.id)}
                       aria-label={`${node.label}: ${node.detail}`}
                       aria-pressed={isSelected}
-                      className="group relative flex cursor-pointer items-center gap-2.5 rounded-full border px-3.5 py-1.5 text-xs font-medium backdrop-blur-md transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg)]"
+                      className="group relative flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border text-xs font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg)] sm:h-auto sm:w-auto sm:justify-start sm:gap-2.5 sm:px-3.5 sm:py-1.5 sm:backdrop-blur-md"
                       style={{
                         backgroundColor: isSelected
                           ? node.alert
@@ -1228,37 +1945,35 @@ className="relative flex min-h-svh w-full items-center overflow-hidden bg-bg pb-
                             ? "#07505a"
                             : "var(--fg)",
                         boxShadow: isSelected
-                          ? "0 0 24px var(--btn-primary-glow)"
+                          ? "0 0 18px var(--btn-primary-glow)"
                           : "var(--glass-shadow)",
-                        transform: isSelected ? "scale(1.06)" : "scale(1)",
                       }}
                     >
-                      <span
-                        aria-hidden="true"
-                        className={`pointer-events-none absolute -inset-1.5 rounded-full transition-opacity duration-300 ${
-                          isSelected
-                            ? "animate-ping opacity-35"
-                            : "opacity-0 group-hover:opacity-25"
-                        }`}
-                        style={{
-                          backgroundColor:
-                            node.alert && isSelected
-                              ? "#f59e0b"
-                              : "var(--accent)",
-                        }}
-                      />
-
                       <span className="relative flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-black/10">
                         <Icon className="h-3.5 w-3.5" />
                       </span>
 
-                      <span className="relative whitespace-nowrap font-semibold">
+                      <span className="relative hidden whitespace-nowrap font-semibold sm:inline">
                         {node.label}
                       </span>
                     </button>
                   </div>
                 );
               })}
+            </div>
+
+            {/* Phone: pills are icon-only, so the selected service is named here */}
+            <div
+              aria-live="polite"
+              className="mt-3 flex min-h-[3.25rem] flex-col items-center text-center sm:hidden"
+            >
+              <span
+                className="text-sm font-semibold"
+                style={{ color: "var(--accent)" }}
+              >
+                {current.label}
+              </span>
+              <span className="text-xs text-fg-muted">{current.detail}</span>
             </div>
           </div>
         </div>

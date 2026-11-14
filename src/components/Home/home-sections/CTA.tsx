@@ -13,7 +13,6 @@ const HEADING = "Ready to enhance your security?";
 
 /* ==========================================================================
    Contact CTA
-   Polished transitions, smooth hover physics, and seamless design tokens.
    ========================================================================== */
 
 export default function ContactCTA() {
@@ -97,27 +96,24 @@ export default function ContactCTA() {
         }
 
         .section.cta-sec {
-          padding-top: 1.5rem;
-          padding-bottom: 2.5rem;
+          padding-top: 1.25rem;
+          padding-bottom: 2rem;
         }
 
         @media (min-width: 640px) {
+          .section.cta-sec {
+            padding-top: 1.5rem;
+            padding-bottom: 2.5rem;
+          }
+        }
+
+        @media (min-width: 1024px) {
           .section.cta-sec {
             padding-top: 2rem;
             padding-bottom: 3rem;
           }
         }
 
-        @media (min-width: 1024px) {
-          .section.cta-sec {
-            padding-top: 2.5rem;
-            padding-bottom: 3.5rem;
-          }
-        }
-
-        /* ----------------------------------------------------------
-           Smooth Beam Animation for Border Glow
-        ---------------------------------------------------------- */
         @keyframes cta-beam {
           to { transform: rotate(360deg); }
         }
@@ -131,7 +127,7 @@ export default function ContactCTA() {
           isolation: isolate;
           will-change: transform, box-shadow;
           transition:
-            transform 500s cubic-bezier(0.16, 1, 0.3, 1),
+            transform 500ms cubic-bezier(0.16, 1, 0.3, 1),
             box-shadow 500ms cubic-bezier(0.16, 1, 0.3, 1);
         }
 
@@ -159,9 +155,6 @@ export default function ContactCTA() {
           transition: background-color 400ms ease;
         }
 
-        /* ----------------------------------------------------------
-           Badge & Interactive Elements Transitions
-        ---------------------------------------------------------- */
         .cta-badge {
           background: var(--accent-soft);
           border: 1px solid color-mix(in srgb, var(--accent) 25%, var(--edge));
@@ -224,7 +217,7 @@ export default function ContactCTA() {
       {/* Ambient background glow */}
       <div
         aria-hidden="true"
-        className="cta-orb pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 size-[450px] rounded-full opacity-35 blur-3xl"
+        className="cta-orb pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 size-[360px] rounded-full opacity-35 blur-3xl"
         style={{
           background:
             "radial-gradient(circle, color-mix(in srgb, var(--accent) 16%, transparent) 0%, transparent 70%)",
@@ -232,18 +225,19 @@ export default function ContactCTA() {
       />
 
       <div className="container-x relative">
-        <div className="cta-card">
-          <div className="cta-card-inner px-6 py-12 sm:px-12 sm:py-14 lg:px-20 lg:py-16">
-            <div className="section-head section-head--center relative mx-auto max-w-3xl">
+        {/* Constrained card width to max-w-4xl and centered */}
+        <div className="cta-card mx-auto max-w-4xl">
+          <div className="cta-card-inner px-6 py-8 sm:px-10 sm:py-10 lg:px-14 lg:py-11">
+            <div className="section-head section-head--center relative mx-auto max-w-xl">
               {/* Trust Badge */}
-              <div className="cta-badge inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-medium text-accent mb-5">
-                <ShieldCheck className="size-4" aria-hidden="true" />
+              <div className="cta-badge mb-4 inline-flex items-center gap-1.5 rounded-full px-3.5 py-1 text-[11px] font-medium text-accent">
+                <ShieldCheck className="size-3.5" aria-hidden="true" />
                 <span>Expert Security Consultation</span>
               </div>
 
               <h2
                 aria-label={HEADING}
-                className="t-h2 font-semibold tracking-tight"
+                className="t-h2 text-2xl font-semibold tracking-tight sm:text-3xl lg:text-[2.1rem]"
                 style={{ color: "var(--cta-h2)" }}
               >
                 {HEADING.split(" ").map((word, index) => (
@@ -262,25 +256,25 @@ export default function ContactCTA() {
                 ))}
               </h2>
 
-              <p className="cta-p t-body mx-auto mt-3 max-w-[54ch] text-center text-fg-muted">
+              <p className="cta-p mx-auto mt-2 max-w-[48ch] text-center text-[12px] leading-relaxed text-fg-muted">
                 Whether you&apos;re securing your property or upgrading your
                 space with smart technology, let&apos;s build a solution that
                 works flawlessly for you.
               </p>
             </div>
 
-            <div className="cta-actions relative mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4 lg:mt-9">
-              <Link href="/contact" className="btn btn--primary">
+            <div className="cta-actions relative mt-6 flex flex-col items-center justify-center gap-2.5 sm:flex-row sm:gap-3">
+              <Link href="/contact" className="btn btn--primary px-5 py-2.5 text-xs">
                 <span>Request a consultation</span>
-                <ArrowUpRight className="size-4" aria-hidden="true" />
+                <ArrowUpRight className="size-3.5" aria-hidden="true" />
               </Link>
 
               <Link
                 href="#services"
-                className="cta-secondary inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-medium tracking-wide"
+                className="cta-secondary inline-flex min-h-10 items-center justify-center gap-2 rounded-full px-5 py-2.5 text-[12px] font-medium tracking-wide"
               >
                 <span>Explore our services</span>
-                <ArrowRight className="size-4" aria-hidden="true" />
+                <ArrowRight className="size-3.5" aria-hidden="true" />
               </Link>
             </div>
           </div>

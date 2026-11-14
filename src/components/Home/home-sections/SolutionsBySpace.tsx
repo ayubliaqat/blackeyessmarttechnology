@@ -10,7 +10,7 @@ import { ArrowRight } from "lucide-react";
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 /* ==========================================================================
-   Animated space illustrations (matching Services custom SVG aesthetic)
+   Animated space illustrations
    ========================================================================== */
 
 const svgProps = {
@@ -269,7 +269,7 @@ const SPACES: Space[] = [
 const HEADING = "Solutions by space";
 
 /* ==========================================================================
-   Solutions by space component (3 per row)
+   Solutions by space component
    ========================================================================== */
 
 export default function SolutionsBySpace() {
@@ -549,8 +549,11 @@ export default function SolutionsBySpace() {
 
       <div className="container-x relative">
         {/* Section heading */}
-        <div className="section-head section-head--center space-head">
-          <h2 className="t-h2 font-semibold" style={{ color: "var(--space-h2)" }}>
+        <div className="section-head section-head--center space-head mb-8 lg:mb-10">
+          <h2
+            className="t-h2 text-3xl font-semibold leading-tight sm:text-4xl lg:text-[2.65rem]"
+            style={{ color: "var(--space-h2)" }}
+          >
             {HEADING.split(" ").map((word, index) => (
               <span
                 key={word + index}
@@ -567,7 +570,7 @@ export default function SolutionsBySpace() {
             ))}
           </h2>
 
-          <p className="space-head-p t-body max-w-[54ch] text-center">
+          <p className="space-head-p mt-2.5 max-w-[54ch] text-center text-[12px] leading-relaxed text-fg-muted">
             Every property has unique security requirements. Explore how we
             build integrated protection for your environment.
           </p>
@@ -579,14 +582,14 @@ export default function SolutionsBySpace() {
             <div key={id} id={id} className="space-card">
               <div className="space-card-inner flex h-full flex-col items-center p-6 sm:p-7">
                 <div
-                  className="space-art-wrap mb-3 h-36 w-44 text-accent sm:h-40 sm:w-48"
+                  className="space-art-wrap mb-3 h-28 w-36 text-accent sm:h-32 sm:w-40"
                   style={{ animationDelay: `${index * 0.4}s` }}
                 >
                   <Art />
                 </div>
 
                 <h3
-                  className="mb-3 text-center font-display text-[1.0625rem] font-semibold leading-snug tracking-tight sm:text-[1.125rem]"
+                  className="mb-3 text-center font-display text-[1rem] font-semibold leading-snug tracking-tight sm:text-[1.0625rem]"
                   style={{ color: "var(--space-h2)" }}
                 >
                   {title}
@@ -598,7 +601,7 @@ export default function SolutionsBySpace() {
                   {points.map((point) => (
                     <li
                       key={point}
-                      className="flex items-start gap-2.5 text-[13px] leading-[1.6] text-fg-muted"
+                      className="flex items-start gap-2.5 text-[12px] leading-[1.6] text-fg-muted"
                     >
                       <span className="space-dot" aria-hidden="true" />
                       <span>{point}</span>

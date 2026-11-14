@@ -538,7 +538,7 @@ export default function Services() {
             transparent 0deg,
             transparent 300deg,
             var(--accent) 360deg
-          );
+        );
           opacity: .7;
           animation: svc-beam 6s linear infinite;
         }
@@ -586,23 +586,23 @@ export default function Services() {
           .svc-card:hover {
             transform: translateY(-4px);
             box-shadow: 0 20px 40px -18px color-mix(in srgb, var(--accent) 35%, transparent);
-          }
+        }
 
-          .svc-card:hover .svc-card-inner {
+        .svc-card:hover .svc-card-inner {
             background: var(--bg-alt);
-          }
+        }
 
-          .svc-card:hover .svc-rule {
+        .svc-card:hover .svc-rule {
             width: 64px;
-          }
+        }
 
-          .svc-link:hover {
+        .svc-link:hover {
             border-color: var(--accent);
-          }
+        }
 
-          .svc-link:hover svg {
+        .svc-link:hover svg {
             transform: translateX(3px);
-          }
+        }
         }
 
         /* ----------------------------------------------------------
@@ -616,17 +616,17 @@ export default function Services() {
         }
 
         @media (hover: hover) {
-          .svc-cta a:hover {
+        .svc-cta a:hover {
             transform: translateY(-2px);
-          }
+        }
         }
 
         .svc-cta a svg {
-          transition: transform 300ms ease;
+        transition: transform 300ms ease;
         }
 
         .svc-cta a:hover svg {
-          transform: translateX(3px);
+        transform: translateX(3px);
         }
 
         /* ----------------------------------------------------------
@@ -634,18 +634,18 @@ export default function Services() {
         ---------------------------------------------------------- */
 
         @media (prefers-reduced-motion: reduce) {
-          .svc-art *,
-          .svc-art-wrap,
-          .svc-card::before {
-            animation: none !important;
-          }
+        .svc-art *,
+        .svc-art-wrap,
+        .svc-card::before {
+          animation: none !important;
+        }
 
-          .svc-card,
-          .svc-card-inner,
-          .svc-link,
-          .svc-cta a {
-            transition-duration: .01ms !important;
-          }
+        .svc-card,
+        .svc-card-inner,
+        .svc-link,
+        .svc-cta a {
+          transition-duration: .01ms !important;
+        }
         }
       `}</style>
 
@@ -661,8 +661,8 @@ export default function Services() {
 
       <div className="container-x relative">
         {/* Section heading */}
-        <div className="section-head section-head--center svc-head">
-          <h2 className="t-h2 font-semibold" style={{ color: "var(--svc-h2)" }}>
+        <div className="section-head section-head--center svc-head mb-8 lg:mb-10">
+          <h2 className="t-h2 font-bold" style={{ color: "var(--svc-h2)" }}>
             {HEADING.split(" ").map((word, index) => (
               <span
                 key={word + index}
@@ -679,7 +679,7 @@ export default function Services() {
             ))}
           </h2>
 
-          <p className="svc-head-p t-body max-w-[54ch] text-center">
+         <p className="svc-head-p t-body max-w-[54ch] text-center text-[14px]">
             Six disciplines, one accountable team. From the first site survey
             to round-the-clock support.
           </p>
@@ -690,17 +690,17 @@ export default function Services() {
           {SERVICES.map(({ id, title, points, Art }, index) => (
             <div key={id} id={id} className="svc-card">
               <div className="svc-card-inner flex h-full flex-col items-center p-6 sm:p-7">
-                {/* Animated illustration */}
+                {/* Animated illustration (Reduced size) */}
                 <div
-                  className="svc-art-wrap mb-3 h-36 w-44 text-accent sm:h-40 sm:w-48"
+                  className="svc-art-wrap mb-3 h-28 w-36 text-accent sm:h-32 sm:w-40"
                   style={{ animationDelay: `${index * 0.4}s` }}
                 >
                   <Art />
                 </div>
 
                 {/* Heading */}
-                <h3
-                  className="mb-3 text-center font-display text-[1.0625rem] font-semibold leading-snug tracking-tight sm:text-[1.125rem]"
+               <h3
+                  className="mb-3 text-center font-display text-[1rem] font-semibold leading-snug tracking-tight sm:text-[1.0625rem]"
                   style={{ color: "var(--svc-h2)" }}
                 >
                   {title}
@@ -708,12 +708,12 @@ export default function Services() {
 
                 <span className="svc-rule mb-4" aria-hidden="true" />
 
-                {/* Three equal points */}
+                {/* Three equal points (Paragraph font size set to 12px) */}
                 <ul className="w-full space-y-2.5 text-left">
                   {points.map((point) => (
                     <li
                       key={point}
-                      className="flex items-start gap-2.5 text-[13px] leading-[1.6] text-fg-muted"
+                      className="flex items-start gap-2.5 text-[12px] leading-[1.6] text-fg-muted"
                     >
                       <span className="svc-dot" aria-hidden="true" />
                       <span>{point}</span>
