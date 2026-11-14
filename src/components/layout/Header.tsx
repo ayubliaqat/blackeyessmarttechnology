@@ -294,7 +294,7 @@ export default function Header() {
           <div className="flex items-center gap-2 justify-self-end md:gap-3">
             <ThemeToggle />
             <div className="hidden sm:block">
-              <Link href="/quote" className="btn btn--primary">
+              <Link href="/contact-us" className="btn btn--primary">
                 Get a Quote
               </Link>
             </div>
