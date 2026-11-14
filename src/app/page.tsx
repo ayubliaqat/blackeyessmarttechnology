@@ -1,3 +1,4 @@
+import CallToAction from "@/components/About/CallToAction";
 import Hero from "@/components/Home/hero/Hero";
 import CTA from "@/components/Home/home-sections/CTA";
 import Process from "@/components/Home/home-sections/OurProcess";
@@ -19,7 +20,7 @@ export default function Home() {
     <SolutionsBySpace/>
     <SystemOverview/>
     <Testimonials/>
-    <CTA/>
+    <CallToAction/>
     </main>
   );
 }
