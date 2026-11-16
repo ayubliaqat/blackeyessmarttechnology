@@ -48,8 +48,6 @@ export default function ContactPage() {
       <UniversalHero
         title="Let's talk"
         subtitle="Have a question or ready to secure your property? Drop us a message below."
-        badgeText="Get In Touch"
-        badgeIcon={MessageSquareText}
         primaryButton={{
           text: "Our Services",
           href: "/services",

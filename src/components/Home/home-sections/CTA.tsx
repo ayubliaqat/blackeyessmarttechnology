@@ -264,16 +264,16 @@ export default function ContactCTA() {
             </div>
 
             <div className="cta-actions relative mt-6 flex flex-col items-center justify-center gap-2.5 sm:flex-row sm:gap-3">
-              <Link href="/contact" className="btn btn--primary px-5 py-2.5 text-xs">
+              <Link href="/contact-us" className="btn btn--primary px-5 py-2.5 text-xs">
                 <span>Request a consultation</span>
                 <ArrowUpRight className="size-3.5" aria-hidden="true" />
               </Link>
 
               <Link
-                href="#services"
+                href="/meeting"
                 className="cta-secondary inline-flex min-h-10 items-center justify-center gap-2 rounded-full px-5 py-2.5 text-[12px] font-medium tracking-wide"
               >
-                <span>Explore our services</span>
+                <span>Book a meeting</span>
                 <ArrowRight className="size-3.5" aria-hidden="true" />
               </Link>
             </div>

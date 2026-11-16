@@ -326,8 +326,8 @@ export default function CallToAction() {
                   </Link>
                 </div>
                 <div className="cta-mag">
-                  <Link href="/services" className="btn w-full sm:w-auto">
-                    Explore Services
+                  <Link href="/meeting" className="btn w-full sm:w-auto">
+                    Book a meeting
                   </Link>
                 </div>
               </div>

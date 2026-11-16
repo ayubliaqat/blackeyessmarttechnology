@@ -4,7 +4,6 @@ import { useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
-import { MessageSquareText } from "lucide-react";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
@@ -85,13 +84,9 @@ export default function ContactHeader() {
       {/* Edge-to-edge full width with zero side spacing */}
       <div className="w-full py-8 px-4 sm:px-6 lg:px-8">
         <div className="contact-head-sec flex flex-col items-center justify-center text-center">
-          <div className="mb-3.5 inline-flex items-center gap-1.5 rounded-full border border-edge bg-accent-soft px-3.5 py-1 text-[11px] font-medium text-accent">
-            <MessageSquareText className="size-3.5" aria-hidden="true" />
-            <span>Get In Touch</span>
-          </div>
-
-          <h2
-            className="t-h2 text-3xl font-semibold leading-tight sm:text-4xl lg:text-[2.5rem]"
+          
+          <h1
+            className="t-h2 text-3xl font-semibold leading-tight sm:text-4xl lg:text-[2.5rem] max-w-2xl mx-auto"
             style={{ color: "var(--contact-h2)" }}
           >
             {HEADING.split(" ").map((word, index) => (
@@ -103,9 +98,9 @@ export default function ContactHeader() {
                 <span className="contact-word inline-block">{word}</span>
               </span>
             ))}
-          </h2>
+          </h1>
 
-          <p className="contact-head-p mt-2.5 max-w-[44ch] text-center text-[14px] leading-relaxed text-fg-muted">
+          <p className="contact-head-p mt-2.5 max-w-2xl mx-auto text-center text-[14px] leading-relaxed text-fg-muted">
             Have a question or ready to secure your property? Drop us a message below.
           </p>
         </div>

@@ -5,7 +5,7 @@ import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
-import { LucideIcon, Sparkles, ArrowRight } from "lucide-react";
+import { LucideIcon, ArrowRight } from "lucide-react";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
@@ -18,8 +18,7 @@ interface ButtonConfig {
 interface PageHeroProps {
   title: string;
   subtitle: string;
-  badgeText?: string;
-  badgeIcon?: LucideIcon;
+  light?: boolean;
   primaryButton?: ButtonConfig;
   secondaryButton?: ButtonConfig;
 }
@@ -27,8 +26,7 @@ interface PageHeroProps {
 export default function UniversalHero({
   title,
   subtitle,
-  badgeText = "Overview",
-  badgeIcon: Icon = Sparkles,
+  light = false,
   primaryButton = {
     text: "Our Services",
     href: "/services",
@@ -83,14 +81,6 @@ export default function UniversalHero({
       className="section hero-head-sec relative w-full overflow-x-clip bg-bg"
     >
       <style>{`
-        .hero-head-sec {
-          --hero-h2: #1ce8f0;
-        }
-
-        .light .hero-head-sec {
-          --hero-h2: #07505a;
-        }
-
         .section.hero-head-sec {
           padding-top: 4rem;
           padding-bottom: 3rem;
@@ -111,30 +101,29 @@ export default function UniversalHero({
       <div className="w-full pt-6 pb-6 px-4 sm:px-6 lg:px-8">
         <div className="hero-head-sec flex flex-col items-center justify-center text-center mx-auto max-w-5xl">
           
-          {/* Badge */}
-          <div className="hero-content-anim mb-4 inline-flex items-center gap-1.5 rounded-full border border-edge bg-accent-soft px-4 py-1.5 text-[11px] font-medium text-accent">
-            <Icon className="size-3.5" aria-hidden="true" />
-            <span>{badgeText}</span>
-          </div>
-
-          {/* Title */}
+          {/* Title styled with exact landing hero typography, accent color, text-shadow glow, and perspective */}
           <h1
-            className="t-h2 text-3xl font-semibold leading-tight sm:text-4xl lg:text-[2.75rem]"
-            style={{ color: "var(--hero-h2)" }}
+            className="hero-left-title font-extrabold leading-[1.05] tracking-tight [perspective:600px] max-w-4xl mx-auto"
+            style={{
+              fontSize: "var(--fs-hero, 2.35rem)",
+              color: "var(--accent)",
+              textShadow: light
+                ? "none"
+                : "0 0 24px rgba(28, 232, 240, 0.35), 0 0 56px rgba(28, 232, 240, 0.18)",
+            }}
           >
-            {title.split(" ").map((word, index) => (
-              <span
-                key={word + index}
-                aria-hidden="true"
-                className="mr-[0.2em] inline-block overflow-hidden align-bottom"
-              >
-                <span className="hero-word inline-block">{word}</span>
+            {title.split(" ").map((word, i, arr) => (
+              <span key={word + i} className="inline-block">
+                <span className="hero-word inline-block will-change-transform">
+                  {word}
+                </span>
+                {i < arr.length - 1 ? "\u00A0" : ""}
               </span>
             ))}
           </h1>
 
-          {/* Subtitle with slightly increased top spacing (mt-4) */}
-          <p className="hero-content-anim mt-4 max-w-4xl text-center text-[14px] leading-relaxed text-fg-muted px-4">
+          {/* Subtitle */}
+          <p className="hero-content-anim mt-4 max-w-2xl mx-auto text-center text-[14px] leading-relaxed text-fg-muted px-4">
             {subtitle}
           </p>
 

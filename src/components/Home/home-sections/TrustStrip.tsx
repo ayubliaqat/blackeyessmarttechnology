@@ -36,7 +36,7 @@ export default function TrustStrip() {
     <section
       ref={ref}
       aria-label="Why choose BlackEyes"
-      className={`trust-neo relative w-full pb-2 pt-0 md:pb-3 md:pt-0 ${
+      className={`trust-neo relative w-full pb-2 pt-0 md:pb-3 md:pt-4 mt-6 ${
         shown ? "is-in" : ""
       }`}
     >
@@ -195,7 +195,7 @@ export default function TrustStrip() {
           transform: scaleX(0);
           transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1) calc(0.7s + var(--i) * 0.11s);
         }
-        .trust-neo.is-in .neo-item + .neo-item::before { transform: scaleX(1); }
+        .trust-neo.is-in .neo-item + .neo-item::before { transform: scaleX(1); } 
         @media (min-width: 1024px) {
           .trust-neo .neo-item + .neo-item::before {
             top: 18%;

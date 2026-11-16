@@ -294,8 +294,8 @@ export default function Header() {
           <div className="flex items-center gap-2 justify-self-end md:gap-3">
             <ThemeToggle />
             <div className="hidden sm:block">
-              <Link href="/contact-us" className="btn btn--primary">
-                Get a Quote
+              <Link href="/meeting" className="btn btn--primary">
+                Book a meeting
               </Link>
             </div>
             <button
@@ -399,8 +399,8 @@ export default function Header() {
               );
             })}
           </ul>
-          <Link href="/contact-us" className="btn btn--primary mt-8 w-full shadow-md">
-            Get a Quote
+          <Link href="/meeting" className="btn btn--primary mt-8 w-full shadow-md">
+            Book a meeting
           </Link>
         </nav>
       </div>

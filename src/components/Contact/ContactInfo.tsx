@@ -39,21 +39,21 @@ export default function ContactInfo() {
           className="mb-2 font-display text-lg font-semibold tracking-tight"
           style={{ color: "var(--accent)" }}
         >
-            Contact Information
+          Contact Information
         </h3>
         <p className="mb-5 text-[12px] text-fg-muted">
-          Connect directly through our official channels or visit our office.
+          Connect directly through our official channels or visit our headquarters.
         </p>
         <span className="contact-rule mb-6" aria-hidden="true" />
 
         <div className="space-y-5">
           {/* Location */}
-          <div className="flex items-center gap-3.5">
-            <div className="contact-icon-box flex size-9 shrink-0 items-center justify-center rounded-full">
+          <div className="flex items-start gap-3.5">
+            <div className="contact-icon-box flex size-9 shrink-0 items-center justify-center rounded-full mt-0.5">
               <MapPin className="size-3.5" aria-hidden="true" />
             </div>
-            <span className="text-[12px] font-medium text-fg">
-              Lahore, Punjab, Pakistan
+            <span className="text-[12px] font-medium text-fg leading-relaxed">
+              Office G-28, Nayab Square, Saadat Town, Bedian Road, Lahore (54000)
             </span>
           </div>
 
@@ -62,9 +62,12 @@ export default function ContactInfo() {
             <div className="contact-icon-box flex size-9 shrink-0 items-center justify-center rounded-full">
               <Phone className="size-3.5" aria-hidden="true" />
             </div>
-            <span className="text-[12px] font-medium text-fg">
-              +92 300 0000000
-            </span>
+            <a
+              href="tel:+923154143012"
+              className="text-[12px] font-medium text-fg hover:text-accent transition-colors"
+            >
+              0315 4143012
+            </a>
           </div>
 
           {/* Email */}
@@ -72,9 +75,12 @@ export default function ContactInfo() {
             <div className="contact-icon-box flex size-9 shrink-0 items-center justify-center rounded-full">
               <Mail className="size-3.5" aria-hidden="true" />
             </div>
-            <span className="text-[12px] font-medium text-fg">
-              support@blackeyes.tech
-            </span>
+            <a
+              href="mailto:Blackeyestechnology@gmail.com"
+              className="text-[12px] font-medium text-fg hover:text-accent transition-colors break-all"
+            >
+              Blackeyestechnology@gmail.com
+            </a>
           </div>
 
           {/* Hours */}

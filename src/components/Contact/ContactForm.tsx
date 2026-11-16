@@ -101,7 +101,7 @@ export default function ContactForm() {
                   type="text"
                   id="name"
                   required
-                  placeholder="Muhammad Ayub"
+                  placeholder="Alex Morgan"
                   className="contact-input"
                 />
               </div>
@@ -113,7 +113,7 @@ export default function ContactForm() {
                   type="email"
                   id="email"
                   required
-                  placeholder="ayub@example.com"
+                  placeholder="alex.morgan@example.com"
                   className="contact-input"
                 />
               </div>
