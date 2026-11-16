@@ -19,8 +19,6 @@ export default function ProjectsPage() {
       <UniversalHero
         title="Our Featured Projects"
         subtitle="Explore our portfolio of successfully engineered electronic security installations, high-definition surveillance networks, and smart property integrations."
-        badgeText="Portfolio Showcase"
-        badgeIcon={FolderGit2}
         primaryButton={{
           text: "Get a Quote",
           href: "/contact",

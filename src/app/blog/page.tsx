@@ -19,8 +19,6 @@ export default function BlogPage() {
       <UniversalHero
         title="Security Insights & Articles"
         subtitle="Stay informed with expert advice on electronic security trends, surveillance optimization, smart home automation, and best practices for property protection."
-        badgeText="Industry Blog"
-        badgeIcon={Newspaper}
         primaryButton={{
           text: "Get a Quote",
           href: "/contact",
