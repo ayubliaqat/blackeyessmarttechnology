@@ -266,7 +266,7 @@ const SPACES: Space[] = [
   },
 ];
 
-const HEADING = "Solutions by space";
+const HEADING = "We offer solutions for every space";
 
 /* ==========================================================================
    Solutions by space component
@@ -339,7 +339,7 @@ export default function SolutionsBySpace() {
     <section
       ref={rootRef}
       id="solutions-by-space"
-      aria-label="Solutions by space"
+      aria-label="Solutions for every space"
       className="section space-sec overflow-x-clip"
     >
       <style>{`
@@ -392,7 +392,7 @@ export default function SolutionsBySpace() {
 
         @keyframes space-float {
           0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-5px); }
+          50% { transform: translateY(-4px); }
         }
 
         @keyframes space-beam {
@@ -437,7 +437,7 @@ export default function SolutionsBySpace() {
           position: relative;
           overflow: hidden;
           padding: 1px;
-          border-radius: 0 28px 0 28px;
+          border-radius: 0 22px 0 22px;
           background: var(--edge);
           isolation: isolate;
           transition:
@@ -471,7 +471,7 @@ export default function SolutionsBySpace() {
 
         .space-rule {
           display: block;
-          width: 40px;
+          width: 36px;
           height: 1px;
           background: linear-gradient(90deg, transparent, var(--accent), transparent);
           opacity: 0.8;
@@ -510,7 +510,7 @@ export default function SolutionsBySpace() {
           }
 
           .space-card:hover .space-rule {
-            width: 64px;
+            width: 56px;
           }
 
           .space-link:hover {
@@ -551,21 +551,17 @@ export default function SolutionsBySpace() {
         {/* Section heading */}
         <div className="section-head section-head--center space-head mb-8 lg:mb-10">
           <h2
-            className="t-h2 text-3xl font-semibold leading-tight sm:text-4xl lg:text-[2.65rem]"
+            className="t-h2 text-2xl font-semibold leading-tight sm:text-3xl lg:text-[2rem]"
             style={{ color: "var(--space-h2)" }}
           >
+            <span className="sr-only">{HEADING}</span>
             {HEADING.split(" ").map((word, index) => (
               <span
                 key={word + index}
                 aria-hidden="true"
                 className="mr-[0.2em] inline-block overflow-hidden align-bottom"
               >
-                <span className="space-word inline-block">
-                  {word}
-                  {index === 1 ? (
-                    <span className="text-accent"> </span>
-                  ) : null}
-                </span>
+                <span className="space-word inline-block">{word}</span>
               </span>
             ))}
           </h2>
@@ -576,20 +572,24 @@ export default function SolutionsBySpace() {
           </p>
         </div>
 
-        {/* 3 cards per row grid */}
-        <div className="space-grid grid gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
+        {/* 4 per row, last card centered */}
+        <div className="space-grid flex flex-wrap justify-center gap-4 lg:gap-5">
           {SPACES.map(({ id, title, points, Art }, index) => (
-            <div key={id} id={id} className="space-card">
-              <div className="space-card-inner flex h-full flex-col items-center p-6 sm:p-7">
+            <div
+              key={id}
+              id={id}
+              className="space-card w-full sm:w-[calc(50%-0.5rem)] lg:w-[calc(25%-0.9375rem)]"
+            >
+              <div className="space-card-inner flex h-full flex-col items-center p-5 xl:p-6">
                 <div
-                  className="space-art-wrap mb-3 h-28 w-36 text-accent sm:h-32 sm:w-40"
+                  className="space-art-wrap mb-3 h-16 w-20 text-accent sm:h-[72px] sm:w-24 xl:h-20 xl:w-28"
                   style={{ animationDelay: `${index * 0.4}s` }}
                 >
                   <Art />
                 </div>
 
                 <h3
-                  className="mb-3 text-center font-display text-[1rem] font-semibold leading-snug tracking-tight sm:text-[1.0625rem]"
+                  className="mb-3 text-center font-display text-[0.9375rem] font-semibold leading-snug tracking-tight xl:text-base"
                   style={{ color: "var(--space-h2)" }}
                 >
                   {title}
@@ -609,11 +609,11 @@ export default function SolutionsBySpace() {
                   ))}
                 </ul>
 
-                <div className="mt-auto w-full pt-6">
+                <div className="mt-auto w-full pt-5">
                   <Link
                     href={`/services#${id}`}
                     aria-label={`Explore ${title}`}
-                    className="space-link flex min-h-10 w-full items-center justify-center gap-2 rounded-full border border-edge bg-accent-soft px-4 py-2.5 text-[12px] font-medium tracking-wide text-accent"
+                    className="space-link flex min-h-9 w-full items-center justify-center gap-2 rounded-full border border-edge bg-accent-soft px-4 py-2 text-[12px] font-medium tracking-wide text-accent"
                   >
                     Explore
                     <ArrowRight className="size-3.5" aria-hidden="true" />

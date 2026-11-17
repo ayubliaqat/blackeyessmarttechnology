@@ -686,57 +686,44 @@ export default function Services() {
         </div>
 
         {/* Service cards */}
-        <div className="svc-grid grid gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
-          {SERVICES.map(({ id, title, points, Art }, index) => (
-            <div key={id} id={id} className="svc-card">
-              <div className="svc-card-inner flex h-full flex-col items-center p-6 sm:p-7">
-                {/* Animated illustration (Reduced size) */}
-                <div
-                  className="svc-art-wrap mb-3 h-28 w-36 text-accent sm:h-32 sm:w-40"
-                  style={{ animationDelay: `${index * 0.4}s` }}
-                >
-                  <Art />
-                </div>
-
-                {/* Heading */}
-               <h3
-                  className="mb-3 text-center font-display text-[1rem] font-semibold leading-snug tracking-tight sm:text-[1.0625rem]"
-                  style={{ color: "var(--svc-h2)" }}
-                >
-                  {title}
-                </h3>
-
-                <span className="svc-rule mb-4" aria-hidden="true" />
-
-                {/* Three equal points (Paragraph font size set to 12px) */}
-                <ul className="w-full space-y-2.5 text-left">
-                  {points.map((point) => (
-                    <li
-                      key={point}
-                      className="flex items-start gap-2.5 text-[12px] leading-[1.6] text-fg-muted"
-                    >
-                      <span className="svc-dot" aria-hidden="true" />
-                      <span>{point}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                {/* Link pinned to the bottom so all cards line up */}
-                <div className="mt-auto w-full pt-6">
-                  <Link
-                    href={`/services/${id}`}
-                    aria-label={`Explore ${title}`}
-                    className="svc-link flex min-h-10 w-full items-center justify-center gap-2 rounded-full border border-edge bg-accent-soft px-4 py-2.5 text-[12px] font-medium tracking-wide text-accent"
-                  >
-                    Explore
-                    <ArrowRight className="size-3.5" aria-hidden="true" />
-                  </Link>
-                </div>
-              </div>
-            </div>
-          ))}
+       <div className="svc-grid grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-5 xl:gap-6">
+  {SERVICES.map(({ id, title, points, Art }, index) => (
+    <div key={id} id={id} className="svc-card h-full">
+      <div className="svc-card-inner flex h-full flex-col items-center p-5 xl:p-6">
+        {/* Animated illustration (compact) */}
+        <div
+          className="svc-art-wrap mb-3 h-16 w-20 text-accent sm:h-[72px] sm:w-24 xl:h-20 xl:w-28"
+          style={{ animationDelay: `${index * 0.4}s` }}
+        >
+          <Art />
         </div>
 
+        {/* Heading */}
+        <h3
+          className="mb-3 text-center font-display text-[0.9375rem] font-semibold leading-snug tracking-tight xl:text-base"
+          style={{ color: "var(--svc-h2)" }}
+        >
+          {title}
+        </h3>
+
+        <span className="svc-rule mb-4" aria-hidden="true" />
+
+        {/* Three equal points */}
+        <ul className="w-full space-y-2.5 text-left">
+          {points.map((point) => (
+            <li
+              key={point}
+              className="flex items-start gap-2.5 text-[12px] leading-[1.6] text-fg-muted"
+            >
+              <span className="svc-dot" aria-hidden="true" />
+              <span>{point}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  ))}
+</div>
         {/* Bottom CTA */}
         <div className="svc-cta mt-12 flex justify-center lg:mt-16">
           <Link href="/services" className="btn btn--primary">
